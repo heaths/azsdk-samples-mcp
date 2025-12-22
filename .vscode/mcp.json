@@ -1,0 +1,10 @@
+{
+  "servers": {
+    "azsdk-samples-mcp": {
+      "type": "stdio",
+      "command": "src/AzureSdk.SamplesMcp/bin/Debug/net10.0/AzureSdk.SamplesMcp",
+      "args": []
+    }
+  },
+  "inputs": []
+}
