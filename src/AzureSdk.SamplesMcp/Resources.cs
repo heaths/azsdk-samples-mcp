@@ -7,11 +7,56 @@ namespace AzureSdk.SamplesMcp;
 [McpServerResourceType]
 public static class Resources
 {
-    [McpServerResource(UriTemplate = "samples://{dependency}", Name = "samples")]
-    [Description("Gets sample content from a project dependency demonstrating how to use that dependency")]
+    static readonly TextResourceContents[] files =
+    [
+        new()
+        {
+            Uri = "samples://foo/README.md",
+            Text = """
+            # Foo
+
+            ## Examples
+
+            ```rust
+            let x = foo();
+            ```
+            """,
+            MimeType = "text/plain",
+        },
+        new()
+        {
+            Uri = "samples://foo/examples/example.rs",
+            Text = """
+            use foo;
+
+            fn main() {
+                println("{}", foo());
+            }
+            """,
+            MimeType = "text/plain",
+        },
+        new()
+        {
+            Uri = "samples://bar/README.md",
+            Text = """
+            # Bar
+
+            ## Examples
+
+            ```rust
+            let x = bar();
+            ```
+            """,
+            MimeType = "text/plain",
+        },
+   ];
+
+    [McpServerResource(UriTemplate = "samples://{dependency}/{+path}")]
+    [Description("Gets sample content (examples) from a project dependency demonstrating how to use that dependency")]
     public static async Task<IEnumerable<ResourceContents>> GetSampleContent(
         RequestContext<ReadResourceRequestParams> context,
         [Description("A specific dependency from which samples are retrieved")] string dependency,
+        [Description("The path of a sample file relative to the root directory of the dependency")] string path,
         CancellationToken cancellationToken = default
     )
     {
@@ -20,58 +65,12 @@ public static class Resources
             throw new ArgumentException("Missing required dependency parameter");
         }
 
-        if (string.Equals(dependency, "foo", StringComparison.InvariantCultureIgnoreCase))
+        if (string.IsNullOrWhiteSpace(path))
         {
-            return [
-                new TextResourceContents
-                {
-                    Uri = "samples://foo",
-                    Text = """
-                    # Foo
-
-                    ## Examples
-
-                    ```rust
-                    let x = foo();
-                    ```
-                    """,
-                    MimeType = "text/plain",
-                },
-                new TextResourceContents
-                {
-                    Uri = "samples://foo",
-                    Text = """
-                    use foo;
-
-                    fn main() {
-                        println("{}", foo());
-                    }
-                    """,
-                    MimeType = "text/plain",
-                },
-            ];
+            throw new ArgumentException("Missing required path parameter");
         }
 
-        if (string.Equals(dependency, "bar", StringComparison.InvariantCultureIgnoreCase))
-        {
-            return [
-                new TextResourceContents
-                {
-                    Uri = "samples://bar",
-                    Text = """
-                    # Bar
-
-                    ## Examples
-
-                    ```rust
-                    let x = bar();
-                    ```
-                    """,
-                    MimeType = "text/plain",
-                },
-            ];
-        }
-
-        throw new NotSupportedException($"Unknown resource: {context.Params?.Uri}");
+        return files.Where(file => string.Equals(file.Uri, context?.Params?.Uri, StringComparison.InvariantCultureIgnoreCase)) ??
+            throw new NotSupportedException($"Unknown resource: {context.Params?.Uri}");
     }
 }
