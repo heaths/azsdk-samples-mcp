@@ -18,7 +18,7 @@ public static class Tools
     }
 
     [McpServerTool(Name = "samples")]
-    [Description("Lists samples of dependencies of the current project")]
+    [Description("Lists samples (examples) of dependencies of the current project")]
     public static async Task<IEnumerable<ContentBlock>> GetSamples(
         [Description("A specific dependency from which samples are retrieved")] string? dependency = null
     )
@@ -32,11 +32,11 @@ public static class Tools
                 Uri = "samples://foo/README.md",
             });
 
-            // resources.Add(new ResourceLinkBlock
-            // {
-            //     Name = "examples/example.rs",
-            //     Uri = "samples://foo/examples/example.rs",
-            // });
+            resources.Add(new ResourceLinkBlock
+            {
+                Name = "examples/example.rs",
+                Uri = "samples://foo/examples/example.rs",
+            });
         }
         if (string.IsNullOrWhiteSpace(dependency) || string.Equals(dependency, "bar", StringComparison.InvariantCultureIgnoreCase))
         {

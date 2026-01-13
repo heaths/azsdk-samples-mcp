@@ -51,8 +51,8 @@ public static class Resources
         },
    ];
 
-    [McpServerResource(UriTemplate = "samples://{dependency}/{+path}", Name = "samples")]
-    [Description("Gets sample content from a project dependency demonstrating how to use that dependency")]
+    [McpServerResource(UriTemplate = "samples://{dependency}/{+path}")]
+    [Description("Gets sample content (examples) from a project dependency demonstrating how to use that dependency")]
     public static async Task<IEnumerable<ResourceContents>> GetSampleContent(
         RequestContext<ReadResourceRequestParams> context,
         [Description("A specific dependency from which samples are retrieved")] string dependency,
