@@ -7,10 +7,10 @@ builder.Logging.AddConsole(options =>
 {
     options.LogToStandardErrorThreshold = LogLevel.Debug;
 });
+builder.Logging.SetMinimumLevel(LogLevel.Debug);
 builder.Services
     .AddMcpServer()
     .WithStdioServerTransport()
     .WithToolsFromAssembly()
-    .WithResourcesFromAssembly()
     .WithPromptsFromAssembly();
 await builder.Build().RunAsync();
