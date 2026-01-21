@@ -22,9 +22,14 @@ class Cargo : IDependencyProvider
 
     public async Task<IEnumerable<string>> GetSamples(string directory, IEnumerable<Dependency> dependencies, ILogger? logger = default)
     {
-        var root = Environment.GetEnvironmentVariable("HOME") ?? Environment.GetEnvironmentVariable("USERPROFILE");
-        if (root is not { Length: > 0 }) return [];
-        root = Path.Combine(root, ".cargo", "registry", "src");
+        var root = Environment.GetEnvironmentVariable("CARGO_HOME");
+        if (root is null)
+        {
+            root = FileSystem.HomeDirectory;
+            if (root is not { Length: > 0 }) return [];
+            root = Path.Combine(root, ".cargo", "registry", "src");
+        }
+
         Console.Error.WriteLine($"Index root: {root}");
         if (!Directory.Exists(root)) return [];
         var indexes = Directory.GetDirectories(root);

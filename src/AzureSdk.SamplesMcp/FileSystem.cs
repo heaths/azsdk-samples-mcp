@@ -4,6 +4,8 @@ namespace AzureSdk.SamplesMcp;
 
 static class FileSystem
 {
+    public static string? HomeDirectory => Environment.GetEnvironmentVariable("HOME") ?? Environment.GetEnvironmentVariable("USERPROFILE");
+
     public static IEnumerable<DirectoryInfo> EnumerateAncestors(string directory, ILogger? logger = default)
     {
         DirectoryInfo? dir = new(directory);
