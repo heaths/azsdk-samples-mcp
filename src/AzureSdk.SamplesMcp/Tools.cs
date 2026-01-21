@@ -73,6 +73,8 @@ public static class Tools
         var samples = await provider.GetSamples(directory, dependencies, logger);
         return samples.Select(samplePath =>
         {
+            // cspell:ignore dylo
+            //
             // BUG: The URI is correct, but the MCP server returns back something like '/file/dylo78gyp/Users/heaths/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/azure_core-0.30.1/README.md'
             // while VSCode interprets that as 'mcp-resource://6d63702e636f6e6669672e7773302e617a73646b2d73616d706c65732d6d6370/file/dylo78gyp/Users/heaths/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/azure_core-0.30.1/README.md'.
             var uri = new Uri("file://" + samplePath).AbsoluteUri;
