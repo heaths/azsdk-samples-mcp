@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using AzureSdk.SamplesMcp.Providers;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol;
 using ModelContextProtocol.Protocol;
@@ -21,17 +22,19 @@ public static class Tools
         [Description("The path where to start looking for project or manifest files")] string path
     )
     {
-        if (File.Exists(path))
+        var loggerFactory = context.Server.AsClientLoggerProvider();
+        var logger = loggerFactory.CreateLogger("Samples");
+        var fileSystem = context.Services?.GetService<FileSystem>() ?? FileSystem.Default;
+
+        if (fileSystem.FileExists(path))
         {
-            path = Directory.GetParent(path)?.FullName ?? throw new McpException($"Require directory for {path}");
+            path = fileSystem.GetParent(path) ?? throw new McpException($"Require directory for {path}");
         }
 
-        var factory = context.Server.AsClientLoggerProvider();
-        var logger = factory.CreateLogger("Samples");
         logger.LogDebug("Looking for dependencies in directory {}", path);
         Console.Error.WriteLine($"Looking for dependencies in directory {path}");
 
-        var result = FileSystem.FindProvider(path, providers, logger);
+        var result = fileSystem.FindProvider(path, providers, logger);
         if (result is not ({ } directory, { } provider)) return [];
         logger.LogDebug("Found provider {} for directory {}", provider.GetType().Name, directory);
         Console.Error.WriteLine($"Found provider {provider.GetType().Name} for directory {directory}");
@@ -47,17 +50,19 @@ public static class Tools
         [Description("A specific dependency from which samples are retrieved")] string? dependency = null
     )
     {
-        if (File.Exists(path))
+        var loggerFactory = context.Server.AsClientLoggerProvider();
+        var logger = loggerFactory.CreateLogger("Samples");
+        var fileSystem = context.Services?.GetService<FileSystem>() ?? FileSystem.Default;
+
+        if (fileSystem.FileExists(path))
         {
-            path = Directory.GetParent(path)?.FullName ?? throw new McpException($"Require directory for {path}");
+            path = fileSystem.GetParent(path) ?? throw new McpException($"Require directory for {path}");
         }
 
-        var factory = context.Server.AsClientLoggerProvider();
-        var logger = factory.CreateLogger("Samples");
         logger.LogDebug("Looking for samples in directory {}", path);
         Console.Error.WriteLine($"Looking for samples in directory {path}");
 
-        var result = FileSystem.FindProvider(path, providers, logger);
+        var result = fileSystem.FindProvider(path, providers, logger);
         if (result is not ({ } directory, { } provider)) return [];
         logger.LogDebug("Found provider {} for directory {}", provider.GetType().Name, directory);
         Console.Error.WriteLine($"Found provider {provider.GetType().Name} for directory {directory}");
@@ -80,7 +85,7 @@ public static class Tools
             var uri = new Uri("file://" + samplePath).AbsoluteUri;
             Console.Error.WriteLine($"Found resource: {uri}");
 
-            var text = File.ReadAllText(samplePath);
+            var text = fileSystem.ReadAllText(samplePath);
 
             // return new ResourceLinkBlock
             // {
