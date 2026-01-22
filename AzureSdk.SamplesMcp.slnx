@@ -2,4 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AzureSdk.SamplesMcp.Test/AzureSdk.SamplesMcp.Test.csproj" />
+  </Folder>
 </Solution>

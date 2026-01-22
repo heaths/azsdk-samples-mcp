@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using AzureSdk.SamplesMcp;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -9,6 +11,8 @@ builder.Logging.AddConsole(options =>
 });
 builder.Logging.SetMinimumLevel(LogLevel.Debug);
 builder.Services
+    .AddSingleton(DefaultEnvironment.Default)
+    .AddSingleton(FileSystem.Default)
     .AddMcpServer()
     .WithStdioServerTransport()
     .WithToolsFromAssembly()

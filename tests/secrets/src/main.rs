@@ -10,13 +10,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .next()
         .or_else(|| env::var("AZURE_KEYVAULT_URL").ok())
         .ok_or_else(|| "Key Vault endpoint or $AZURE_KEYVAULT_URL required")?;
-    let credential = DeveloperToolsCredential::new(None)?;
-    let client = SecretClient::new(&endpoint, credential, None)?;
 
-    let mut secrets = client.list_secret_properties(None)?;
-    while let Some(secret) = secrets.try_next().await? {
+    // Create a new secret client
+    let credential = DeveloperToolsCredential::new(None)?;
+    let client = SecretClient::new(&endpoint, credential.clone(), None)?;
+
+    let mut pager = client.list_secret_properties(None)?.into_stream();
+    while let Some(secret) = pager.try_next().await? {
+        // Get the secret name from the ID.
         let name = secret.resource_id()?.name;
-        println!("{name}");
+        println!("{}", name);
     }
 
     Ok(())
