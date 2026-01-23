@@ -7,7 +7,7 @@ This document provides guidance for agents working on the azsdk-samples-mcp repo
 The repository contains a Model Context Protocol (MCP) server built in C# that provides tools for discovering and retrieving samples from Azure SDK dependencies. It also includes Rust utilities for testing.
 
 ```text
-├── src/AzureSdk.SamplesMcp/         # Main MCP server (.NET)
+├── src/AzureSdk.SamplesMcp/          # Main MCP server (.NET)
 │   ├── Tools.cs                      # MCP tool definitions (dependencies, samples)
 │   ├── Providers/                    # Dependency provider implementations
 │   │   ├── Cargo.cs                  # Rust Cargo provider

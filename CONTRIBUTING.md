@@ -18,10 +18,10 @@
 
 - Pull requests run build/test and analyze jobs (formatting, spelling, markdown lint) in CI.
 - You can run them locally if desired:
-  - dotnet build
-  - dotnet test
-  - npx cspell lint .
-  - npx markdownlint-cli2
+  - `dotnet build`
+  - `dotnet test`
+  - `npx cspell lint .`
+  - `npx markdownlint-cli2`
 
 ## Contributing Workflow
 
