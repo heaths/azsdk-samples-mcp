@@ -14,6 +14,7 @@ This file provides instructions for GitHub Copilot when working on the azsdk-sam
 This is an MCP server that discovers and retrieves samples from Azure SDK dependencies. The main logic is in C# (.NET 10.0), with Rust test utilities for integration testing with Azure services.
 
 **Key Components:**
+
 - `Tools.cs`: Defines MCP tools for listing dependencies and samples
 - `Providers/Cargo.cs`: Implements dependency discovery for Rust Cargo projects
 - `Program.cs`: Configures logging and MCP server setup

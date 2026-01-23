@@ -6,7 +6,7 @@ This document provides guidance for agents working on the azsdk-samples-mcp repo
 
 The repository contains a Model Context Protocol (MCP) server built in C# that provides tools for discovering and retrieving samples from Azure SDK dependencies. It also includes Rust utilities for testing.
 
-```
+```text
 ├── src/AzureSdk.SamplesMcp/         # Main MCP server (.NET)
 │   ├── Tools.cs                      # MCP tool definitions (dependencies, samples)
 │   ├── Providers/                    # Dependency provider implementations
@@ -78,6 +78,15 @@ dotnet format --severity warn
 ```
 
 If `dotnet format` cannot fix remaining issues, manually address them according to the error messages. The analyzer in the CI pipeline will verify formatting is correct.
+
+## Linting
+
+Run linters from the repository root (configuration is auto-discovered):
+
+```bash
+npx -y cspell lint .
+npx -y markdownlint-cli2
+```
 
 ## Logging
 
