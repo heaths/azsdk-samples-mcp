@@ -3,9 +3,9 @@ using Microsoft.Extensions.Logging;
 
 namespace AzureSdk.SamplesMcp.Providers;
 
-class Command(string name, ILogger? logger) : IDisposable
+internal class Command(string name, ILogger? logger) : IDisposable
 {
-    Process? process;
+    private Process? _process;
 
     public string Name => name;
 
@@ -17,7 +17,7 @@ class Command(string name, ILogger? logger) : IDisposable
 
     public string? WorkingDirectory { get; set; } = Environment.CurrentDirectory;
 
-    public void Dispose() => process?.Dispose();
+    public void Dispose() => _process?.Dispose();
 
     public async Task<int> Run(CancellationToken cancellationToken = default)
     {
@@ -31,19 +31,19 @@ class Command(string name, ILogger? logger) : IDisposable
         };
         logger?.LogDebug("Running: {} {}", info.FileName, string.Join(" ", info.ArgumentList));
 
-        process = Process.Start(info) ?? throw new Exception($"Failed to launch {name}");
+        _process = Process.Start(info) ?? throw new Exception($"Failed to launch {name}");
 
         // Capture stdout and stderr asynchronously
-        Task<string> stdoutTask = process.StandardOutput.ReadToEndAsync(cancellationToken);
-        Task<string> stderrTask = process.StandardError.ReadToEndAsync(cancellationToken);
+        Task<string> stdoutTask = _process.StandardOutput.ReadToEndAsync(cancellationToken);
+        Task<string> stderrTask = _process.StandardError.ReadToEndAsync(cancellationToken);
 
-        await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+        await _process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
 
         // Get the captured output
         StandardOutput = await stdoutTask.ConfigureAwait(false);
         StandardError = await stderrTask.ConfigureAwait(false);
 
-        logger?.LogDebug("Process exited with code {}", process.ExitCode);
-        return process.ExitCode;
+        logger?.LogDebug("Process exited with code {}", _process.ExitCode);
+        return _process.ExitCode;
     }
 }

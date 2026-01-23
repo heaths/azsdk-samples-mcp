@@ -9,9 +9,9 @@ namespace AzureSdk.SamplesMcp;
 /// </summary>
 /// <param name="fileProvider">Optional <see cref="IFileProvider"/>. The default uses a <see cref="PhysicalFileProvider"/> rooted as "/".</param>
 #pragma warning disable CA1822 // Mark members as static
-class FileSystem(IFileProvider? fileProvider = null)
+internal class FileSystem(IFileProvider? fileProvider = null)
 {
-    readonly IFileProvider _fileProvider = fileProvider ?? new PhysicalFileProvider("/");
+    private readonly IFileProvider _fileProvider = fileProvider ?? new PhysicalFileProvider("/");
 
     /// <summary>
     /// Gets a <see cref="FileSystem"/> using the physical file system rooted as "/".
@@ -76,7 +76,7 @@ class FileSystem(IFileProvider? fileProvider = null)
     /// <param name="logger">Optional logger for diagnostic output.</param>
     /// <returns>An enumerable collection of <see cref="IFileInfo"/> objects representing each ancestor directory.</returns>
     /// <exception cref="System.IO.DirectoryNotFoundException">Thrown when the specified directory does not exist.</exception>
-    public IEnumerable<IFileInfo> EnumerateAncestors(string directory, ILogger? logger = default)
+    public IEnumerable<IFileInfo> EnumerateAncestors(string directory, ILogger? logger = null)
     {
         if (!DirectoryExists(directory))
         {
@@ -87,9 +87,8 @@ class FileSystem(IFileProvider? fileProvider = null)
         while (true)
         {
             logger?.LogDebug("Checking directory {}", directory);
-            Console.Error.WriteLine($"Checking directory {directory}");
 
-            var dir = _fileProvider.GetFileInfo(directory);
+            IFileInfo dir = _fileProvider.GetFileInfo(directory);
             yield return dir;
 
             var parent = Path.GetDirectoryName(directory);
@@ -113,7 +112,7 @@ class FileSystem(IFileProvider? fileProvider = null)
     /// <param name="providers">The collection of dependency providers to check.</param>
     /// <param name="logger">Optional logger for diagnostic output.</param>
     /// <returns>A tuple containing the directory path and matching provider, or <see langword="null"/> if no provider is found.</returns>
-    public (string Directory, IDependencyProvider Provider)? FindProvider(string directory, IEnumerable<IDependencyProvider> providers, ILogger? logger = default)
+    public (string Directory, IDependencyProvider Provider)? FindProvider(string directory, IEnumerable<IDependencyProvider> providers)
     {
         return EnumerateAncestors(directory)
             .SelectMany(d => providers

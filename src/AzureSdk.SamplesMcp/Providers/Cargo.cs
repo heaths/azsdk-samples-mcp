@@ -6,7 +6,7 @@ using Path = System.IO.Path;
 
 namespace AzureSdk.SamplesMcp.Providers;
 
-class Cargo : IDependencyProvider
+internal class Cargo : IDependencyProvider
 {
     public bool HasProject(string directory, FileSystem? fileSystem = null)
     {
@@ -19,7 +19,7 @@ class Cargo : IDependencyProvider
     public async Task<IEnumerable<Dependency>> GetDependencies(string directory, ILogger? logger = default, FileSystem? fileSystem = null)
     {
         var manifestPath = Path.Combine(directory, "Cargo.toml");
-        var crates = await GetDependencyInfo(manifestPath, false, logger: logger, fileSystem: fileSystem).ConfigureAwait(false);
+        IEnumerable<Crate> crates = await GetDependencyInfo(manifestPath, logger: logger, fileSystem: fileSystem).ConfigureAwait(false);
         return crates.Select(c => new Dependency(c.Name, c.Version));
     }
 
@@ -32,17 +32,20 @@ class Cargo : IDependencyProvider
         if (string.IsNullOrEmpty(root))
         {
             root = environment.HomeDirectory;
-            if (root is not { Length: > 0 }) return [];
+            if (root is not { Length: > 0 })
+                return [];
             root = Path.Combine(root, ".cargo", "registry", "src");
         }
 
-        Console.Error.WriteLine($"Index root: {root}");
-        if (!fileSystem.DirectoryExists(root)) return [];
+        logger?.LogDebug("Index root: {}", root);
+        if (!fileSystem.DirectoryExists(root))
+            return [];
         var indexes = fileSystem.GetDirectories(root).ToArray();
-        if (indexes.Length == 0) return [];
+        if (indexes.Length == 0)
+            return [];
 
         var manifestPath = Path.Combine(directory, "Cargo.toml");
-        var crates = await GetDependencyInfo(manifestPath, true, logger: logger, fileSystem: fileSystem).ConfigureAwait(false);
+        IEnumerable<Crate> crates = await GetDependencyInfo(manifestPath, logger: logger, fileSystem: fileSystem).ConfigureAwait(false);
 
         var dependencySet = dependencies.Select(d => $"{d.Name}-{d.Version}").ToHashSet();
         if (dependencySet is { Count: > 0 })
@@ -51,15 +54,15 @@ class Cargo : IDependencyProvider
         }
 
         List<string> samples = [];
-        foreach (var crate in crates)
+        foreach (Crate crate in crates)
         {
-            Console.Error.WriteLine($"Checking crate {crate.DirectoryName}");
+            logger?.LogDebug("Checking crate {}", crate.DirectoryName);
             foreach (var index in indexes)
             {
                 var cacheDirectory = Path.Combine(index, crate.DirectoryName);
                 logger?.LogDebug("Checking dependency directory {}", cacheDirectory);
-                Console.Error.WriteLine($"Checking dependency directory {cacheDirectory}");
-                if (!fileSystem.DirectoryExists(cacheDirectory)) continue;
+                if (!fileSystem.DirectoryExists(cacheDirectory))
+                    continue;
 
                 var readmePath = Path.Combine(cacheDirectory, "README.md");
                 if (fileSystem.FileExists(readmePath))
@@ -82,7 +85,7 @@ class Cargo : IDependencyProvider
         return samples;
     }
 
-    async static Task<IEnumerable<Crate>> GetDependencyInfo(string manifestPath, bool findPath, ILogger? logger, FileSystem? fileSystem)
+    private static async Task<IEnumerable<Crate>> GetDependencyInfo(string manifestPath, ILogger? logger, FileSystem? fileSystem)
     {
         fileSystem ??= FileSystem.Default;
 
@@ -110,7 +113,7 @@ class Cargo : IDependencyProvider
         }
 
         using var doc = JsonDocument.Parse(stdout);
-        var packages = doc
+        IEnumerable<JsonElement> packages = doc
             .RootElement
             .GetProperty("packages")
             .EnumerateArray()
@@ -120,19 +123,19 @@ class Cargo : IDependencyProvider
                 .StartsWith("azure_") ?? false)
             .Select(e =>
             {
-                Console.Error.WriteLine($"Found dependency: {e.GetProperty("name").GetString()}");
+                logger?.LogDebug("Found dependency: {}", e.GetProperty("name").GetString());
                 return e;
             });
 
         List<Crate> crates = [];
-        foreach (var package in packages)
+        foreach (JsonElement package in packages)
         {
             var name = package.GetProperty("name").GetString();
             var version = package.GetProperty("version").GetString();
 
-            if (Crate.TryCreate(name, version, out var crate))
+            if (Crate.TryCreate(name, version, out Crate? crate))
             {
-                Console.Error.WriteLine($"Adding dependency {name}@{version}");
+                logger?.LogDebug("Adding dependency {}@{}", name, version);
                 crates.Add(crate);
             }
         }
@@ -141,15 +144,17 @@ class Cargo : IDependencyProvider
     }
 }
 
-record Crate(string Name, string Version)
+internal record Crate(string Name, string Version)
 {
     public string DirectoryName => $"{Name}-{Version}";
 
     public static bool TryCreate(string? name, string? version, [NotNullWhen(true)] out Crate? crate)
     {
         crate = null;
-        if (string.IsNullOrWhiteSpace(name)) return false;
-        if (string.IsNullOrWhiteSpace(version)) return false;
+        if (string.IsNullOrWhiteSpace(name))
+            return false;
+        if (string.IsNullOrWhiteSpace(version))
+            return false;
 
         crate = new(name, version);
         return true;

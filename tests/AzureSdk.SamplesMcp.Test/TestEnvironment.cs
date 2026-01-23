@@ -2,9 +2,9 @@ using System.Collections;
 
 namespace AzureSdk.SamplesMcp;
 
-class TestEnvironment : IEnvironment, IEnumerable<KeyValuePair<string, string>>
+internal class TestEnvironment : IEnvironment, IEnumerable<KeyValuePair<string, string>>
 {
-    readonly Dictionary<string, string> _variables = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, string> _variables = new(StringComparer.OrdinalIgnoreCase);
 
     public string? GetString(string name)
     {
@@ -54,10 +54,12 @@ public class TestEnvironmentTests
     [TestMethod]
     public void HomeDirectory_ReturnsHomeValue_WhenHomeIsSet()
     {
+#pragma warning disable CA1859 // Use concrete types when possible for improved performance
         IEnvironment env = new TestEnvironment
         {
             { "HOME", "/home/heaths" }
         };
+#pragma warning restore CA1859 // Use concrete types when possible for improved performance
         var result = env.HomeDirectory;
 
         Assert.AreEqual("/home/heaths", result);
