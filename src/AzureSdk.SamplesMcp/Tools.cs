@@ -11,7 +11,7 @@ namespace AzureSdk.SamplesMcp;
 [McpServerToolType]
 public static class Tools
 {
-    static readonly IDependencyProvider[] providers = [
+    private static readonly IDependencyProvider[] s_providers = [
         new Cargo(),
     ];
 
@@ -22,9 +22,8 @@ public static class Tools
         [Description("The path where to start looking for project or manifest files")] string path
     )
     {
-        var loggerFactory = context.Server.AsClientLoggerProvider();
-        var logger = loggerFactory.CreateLogger("Samples");
-        var fileSystem = context.Services?.GetService<FileSystem>() ?? FileSystem.Default;
+        ILogger logger = context.Services!.GetRequiredService<ILoggerFactory>().CreateLogger("Dependencies");
+        FileSystem fileSystem = context.Services?.GetService<FileSystem>() ?? FileSystem.Default;
 
         if (fileSystem.FileExists(path))
         {
@@ -32,13 +31,12 @@ public static class Tools
         }
 
         logger.LogDebug("Looking for dependencies in directory {}", path);
-        Console.Error.WriteLine($"Looking for dependencies in directory {path}");
 
-        var result = fileSystem.FindProvider(path, providers, logger);
-        if (result is not ({ } directory, { } provider)) return [];
+        (string Directory, IDependencyProvider Provider)? result = fileSystem.FindProvider(path, s_providers);
+        if (result is not ({ } directory, { } provider))
+            return [];
         logger.LogDebug("Found provider {} for directory {}", provider.GetType().Name, directory);
-        Console.Error.WriteLine($"Found provider {provider.GetType().Name} for directory {directory}");
-        var dependencies = await provider.GetDependencies(directory, logger);
+        IEnumerable<Dependency> dependencies = await provider.GetDependencies(directory, logger);
         return dependencies.Select(d => d.Name);
     }
 
@@ -50,9 +48,8 @@ public static class Tools
         [Description("A specific dependency from which samples are retrieved")] string? dependency = null
     )
     {
-        var loggerFactory = context.Server.AsClientLoggerProvider();
-        var logger = loggerFactory.CreateLogger("Samples");
-        var fileSystem = context.Services?.GetService<FileSystem>() ?? FileSystem.Default;
+        ILogger logger = context.Services!.GetRequiredService<ILoggerFactory>().CreateLogger("Samples");
+        FileSystem fileSystem = context.Services?.GetService<FileSystem>() ?? FileSystem.Default;
 
         if (fileSystem.FileExists(path))
         {
@@ -60,14 +57,13 @@ public static class Tools
         }
 
         logger.LogDebug("Looking for samples in directory {}", path);
-        Console.Error.WriteLine($"Looking for samples in directory {path}");
 
-        var result = fileSystem.FindProvider(path, providers, logger);
-        if (result is not ({ } directory, { } provider)) return [];
+        (string Directory, IDependencyProvider Provider)? result = fileSystem.FindProvider(path, s_providers);
+        if (result is not ({ } directory, { } provider))
+            return [];
         logger.LogDebug("Found provider {} for directory {}", provider.GetType().Name, directory);
-        Console.Error.WriteLine($"Found provider {provider.GetType().Name} for directory {directory}");
 
-        var dependencies = await provider.GetDependencies(directory, logger);
+        IEnumerable<Dependency> dependencies = await provider.GetDependencies(directory, logger);
 
         // Filter by dependency parameter if provided
         if (!string.IsNullOrWhiteSpace(dependency))
@@ -75,7 +71,7 @@ public static class Tools
             dependencies = dependencies.Where(d => string.Equals(d.Name, dependency, StringComparison.OrdinalIgnoreCase));
         }
 
-        var samples = await provider.GetSamples(directory, dependencies, logger);
+        IEnumerable<string> samples = await provider.GetSamples(directory, dependencies, logger);
         return samples.Select(samplePath =>
         {
             // cspell:ignore dylo
@@ -83,7 +79,6 @@ public static class Tools
             // BUG: The URI is correct, but the MCP server returns back something like '/file/dylo78gyp/Users/heaths/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/azure_core-0.30.1/README.md'
             // while VSCode interprets that as 'mcp-resource://6d63702e636f6e6669672e7773302e617a73646b2d73616d706c65732d6d6370/file/dylo78gyp/Users/heaths/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/azure_core-0.30.1/README.md'.
             var uri = new Uri("file://" + samplePath).AbsoluteUri;
-            Console.Error.WriteLine($"Found resource: {uri}");
 
             var text = fileSystem.ReadAllText(samplePath);
 

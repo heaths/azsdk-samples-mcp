@@ -1,9 +1,11 @@
 namespace AzureSdk.SamplesMcp;
 
+// cspell:words USERPROFILE
+
 /// <summary>
 /// Represents an environment.
 /// </summary>
-interface IEnvironment
+internal interface IEnvironment
 {
     /// <summary>
     /// Gets the user home directory.
@@ -21,7 +23,7 @@ interface IEnvironment
 /// <summary>
 /// The current process environment.
 /// </summary>
-class DefaultEnvironment : IEnvironment
+internal class DefaultEnvironment : IEnvironment
 {
     public static IEnvironment Default { get; } = new DefaultEnvironment();
 
