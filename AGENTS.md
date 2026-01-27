@@ -81,12 +81,10 @@ If `dotnet format` cannot fix remaining issues, manually address them according 
 
 ## Linting
 
-Run linters from the repository root (configuration is auto-discovered):
+Before committing changes, run spell checking and Markdown linting using the repository skills:
 
-```bash
-npx -y cspell lint .
-npx -y markdownlint-cli2
-```
+- For spelling, use the cspell skill instructions in `.github/skills/cspell/SKILL.md` (honors repo config and version pinning).
+- For Markdown, use the markdownlint skill instructions in `.github/skills/markdownlint/SKILL.md` (honors repo config and version pinning).
 
 ## Logging
 
