@@ -28,12 +28,12 @@ internal class Node : IDependencyProvider
         if (fileSystem.FileExists(pnpmLockPath))
         {
             logger?.LogDebug("Found pnpm-lock.yaml, using pnpm");
-            return await GetPnpmDependencies(directory, logger, fileSystem).ConfigureAwait(false);
+            return await GetPnpmDependencies(directory, logger).ConfigureAwait(false);
         }
         else if (fileSystem.FileExists(npmLockPath))
         {
             logger?.LogDebug("Found package-lock.json, using npm");
-            return await GetNpmDependencies(directory, logger, fileSystem).ConfigureAwait(false);
+            return await GetNpmDependencies(directory, logger).ConfigureAwait(false);
         }
 
         logger?.LogWarning("No lock file found (package-lock.json or pnpm-lock.yaml)");
@@ -84,67 +84,23 @@ internal class Node : IDependencyProvider
         return samples;
     }
 
-    private static async Task<IEnumerable<Dependency>> GetNpmDependencies(string directory, ILogger? logger, FileSystem? fileSystem)
+    private static async Task<IEnumerable<Dependency>> GetNpmDependencies(string directory, ILogger? logger)
     {
-        using Command npm = new("npm", logger)
-        {
-            Arguments =
-            {
-                "list",
-                "--json",
-                "--depth=0",
-            },
-            WorkingDirectory = directory,
-        };
-
-        var exitCode = await npm.Run().ConfigureAwait(false);
-        if (exitCode != 0)
-        {
-            throw new McpException($"{npm.Name} failed with exit code {exitCode}");
-        }
-
-        var stdout = npm.StandardOutput;
-        if (string.IsNullOrWhiteSpace(stdout))
-        {
-            return [];
-        }
-
-        using var doc = JsonDocument.Parse(stdout);
-        var depsElement = JsonPath.Query(doc, ".dependencies").FirstOrDefault();
-
-        if (depsElement.ValueKind != JsonValueKind.Object)
-        {
-            return [];
-        }
-
-        List<Dependency> dependencies = [];
-        foreach (var property in depsElement.EnumerateObject())
-        {
-            var name = property.Name;
-
-            // Filter for @azure packages
-            if (!name.StartsWith("@azure/"))
-            {
-                continue;
-            }
-
-            var version = property.Value.TryGetProperty("version", out var versionElement)
-                ? versionElement.GetString()
-                : null;
-
-            if (Package.TryCreate(name, version, out Package? package))
-            {
-                logger?.LogDebug("Adding dependency {}@{}", name, version);
-                dependencies.Add(new Dependency(package.Name, package.Version));
-            }
-        }
-
-        return dependencies;
+        return await GetPackageManagerDependencies("npm", ".dependencies", directory, logger).ConfigureAwait(false);
     }
 
-    private static async Task<IEnumerable<Dependency>> GetPnpmDependencies(string directory, ILogger? logger, FileSystem? fileSystem)
+    private static async Task<IEnumerable<Dependency>> GetPnpmDependencies(string directory, ILogger? logger)
     {
-        using Command pnpm = new("pnpm", logger)
+        return await GetPackageManagerDependencies("pnpm", ".[].dependencies", directory, logger).ConfigureAwait(false);
+    }
+
+    private static async Task<IEnumerable<Dependency>> GetPackageManagerDependencies(
+        string commandName,
+        string jsonPath,
+        string directory,
+        ILogger? logger)
+    {
+        using Command command = new(commandName, logger)
         {
             Arguments =
             {
@@ -155,20 +111,20 @@ internal class Node : IDependencyProvider
             WorkingDirectory = directory,
         };
 
-        var exitCode = await pnpm.Run().ConfigureAwait(false);
+        var exitCode = await command.Run().ConfigureAwait(false);
         if (exitCode != 0)
         {
-            throw new McpException($"{pnpm.Name} failed with exit code {exitCode}");
+            throw new McpException($"{command.Name} failed with exit code {exitCode}");
         }
 
-        var stdout = pnpm.StandardOutput;
+        var stdout = command.StandardOutput;
         if (string.IsNullOrWhiteSpace(stdout))
         {
             return [];
         }
 
         using var doc = JsonDocument.Parse(stdout);
-        var depsElement = JsonPath.Query(doc, ".[].dependencies").FirstOrDefault();
+        var depsElement = JsonPath.Query(doc, jsonPath).FirstOrDefault();
 
         if (depsElement.ValueKind != JsonValueKind.Object)
         {
