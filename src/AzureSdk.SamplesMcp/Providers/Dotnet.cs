@@ -9,6 +9,8 @@ namespace AzureSdk.SamplesMcp.Providers;
 
 internal class Dotnet : IDependencyProvider
 {
+    private string? _globalPackages;
+
     public bool HasProject(string directory, FileSystem? fileSystem = null)
     {
         fileSystem ??= FileSystem.Default;
@@ -28,16 +30,25 @@ internal class Dotnet : IDependencyProvider
         environment ??= DefaultEnvironment.Default;
         fileSystem ??= FileSystem.Default;
 
-        // Get the NuGet global packages directory from environment or dotnet command
+        // Get the NuGet global packages directory from environment, cache, or dotnet command
         var globalPackages = environment.GetString("NUGET_PACKAGES");
         if (string.IsNullOrEmpty(globalPackages))
         {
-            globalPackages = await GetGlobalPackagesDirectory(logger).ConfigureAwait(false);
+            globalPackages = _globalPackages;
         }
 
         if (string.IsNullOrEmpty(globalPackages))
         {
-            logger?.LogDebug("Could not determine NuGet global packages directory");
+            globalPackages = await GetGlobalPackagesDirectory(logger).ConfigureAwait(false);
+            if (!string.IsNullOrEmpty(globalPackages))
+            {
+                _globalPackages = globalPackages;
+            }
+        }
+
+        if (string.IsNullOrEmpty(globalPackages))
+        {
+            logger?.LogWarning("Could not determine NuGet global packages directory");
             return [];
         }
 
@@ -69,16 +80,6 @@ internal class Dotnet : IDependencyProvider
             if (fileSystem.FileExists(readmePath))
             {
                 samples.Add(readmePath);
-            }
-
-            // Check for samples directory
-            var samplesPath = Path.Combine(packageDirectory, "samples");
-            if (fileSystem.DirectoryExists(samplesPath))
-            {
-                foreach (var samplePath in fileSystem.GetFiles(samplesPath))
-                {
-                    samples.Add(samplePath);
-                }
             }
         }
 
