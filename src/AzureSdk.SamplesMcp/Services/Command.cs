@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 
-namespace AzureSdk.SamplesMcp.Providers;
+namespace AzureSdk.SamplesMcp.Services;
 
 internal class Command(string name, ILogger? logger) : IDisposable
 {
