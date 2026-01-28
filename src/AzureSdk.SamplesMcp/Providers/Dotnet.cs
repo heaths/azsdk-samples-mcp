@@ -21,7 +21,7 @@ internal class Dotnet : IDependencyProvider
 
     public async Task<IEnumerable<Dependency>> GetDependencies(string directory, ILogger? logger = default, FileSystem? fileSystem = null)
     {
-        IEnumerable<Package> packages = await GetDependencyInfo(directory, logger: logger).ConfigureAwait(false);
+        IEnumerable<DotnetPackage> packages = await GetDependencyInfo(directory, logger: logger).ConfigureAwait(false);
         return packages.Select(p => new Dependency(p.Id, p.ResolvedVersion));
     }
 
@@ -56,7 +56,7 @@ internal class Dotnet : IDependencyProvider
         if (!fileSystem.DirectoryExists(globalPackages))
             return [];
 
-        IEnumerable<Package> packages = await GetDependencyInfo(directory, logger: logger).ConfigureAwait(false);
+        IEnumerable<DotnetPackage> packages = await GetDependencyInfo(directory, logger: logger).ConfigureAwait(false);
 
         var dependencySet = dependencies.Select(d => d.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
         if (dependencySet is { Count: > 0 })
@@ -65,7 +65,7 @@ internal class Dotnet : IDependencyProvider
         }
 
         List<string> samples = [];
-        foreach (Package package in packages)
+        foreach (DotnetPackage package in packages)
         {
             logger?.LogDebug("Checking package {}", package.DirectoryName);
 
@@ -121,7 +121,7 @@ internal class Dotnet : IDependencyProvider
         return null;
     }
 
-    private static async Task<IEnumerable<Package>> GetDependencyInfo(string directory, ILogger? logger)
+    private static async Task<IEnumerable<DotnetPackage>> GetDependencyInfo(string directory, ILogger? logger)
     {
         using Command dotnet = new("dotnet", logger)
         {
@@ -161,13 +161,13 @@ internal class Dotnet : IDependencyProvider
                 return e;
             });
 
-        List<Package> packages = [];
+        List<DotnetPackage> packages = [];
         foreach (JsonElement packageElement in packageElements)
         {
             var id = packageElement.GetProperty("id").GetString();
             var resolvedVersion = packageElement.GetProperty("resolvedVersion").GetString();
 
-            if (Package.TryCreate(id, resolvedVersion, out Package? package))
+            if (DotnetPackage.TryCreate(id, resolvedVersion, out DotnetPackage? package))
             {
                 logger?.LogDebug("Adding dependency {}@{}", id, resolvedVersion);
                 packages.Add(package);
@@ -178,12 +178,12 @@ internal class Dotnet : IDependencyProvider
     }
 }
 
-internal record Package(string Id, string ResolvedVersion)
+internal record DotnetPackage(string Id, string ResolvedVersion)
 {
     // NuGet packages are stored in lowercase: {id}/{version}
     public string DirectoryName => $"{Id.ToLowerInvariant()}/{ResolvedVersion}";
 
-    public static bool TryCreate(string? id, string? resolvedVersion, [NotNullWhen(true)] out Package? package)
+    public static bool TryCreate(string? id, string? resolvedVersion, [NotNullWhen(true)] out DotnetPackage? package)
     {
         package = null;
         if (string.IsNullOrWhiteSpace(id))
