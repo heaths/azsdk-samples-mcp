@@ -10,7 +10,8 @@ The repository contains a Model Context Protocol (MCP) server built in C# that p
 ├── src/AzureSdk.SamplesMcp/          # Main MCP server (.NET)
 │   ├── Tools.cs                      # MCP tool definitions (dependencies, samples)
 │   ├── Providers/                    # Dependency provider implementations
-│   │   ├── Cargo.cs                  # Rust Cargo provider
+│   │   └── Cargo.cs                  # Rust Cargo provider
+│   ├── Services/                     # Service utilities
 │   │   └── Command.cs                # Command execution utility
 │   ├── FileSystem.cs                 # File system abstraction
 │   ├── Environment.cs                # Environment variable access

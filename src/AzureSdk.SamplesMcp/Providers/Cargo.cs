@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using AzureSdk.SamplesMcp.Services;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol;
 using Path = System.IO.Path;
