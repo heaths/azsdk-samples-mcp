@@ -1,0 +1,9 @@
+[package]
+name = "cargo-project"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+azure_core = "0.31.0"
+tokio = { version = "1.49.0", features = ["full"] }

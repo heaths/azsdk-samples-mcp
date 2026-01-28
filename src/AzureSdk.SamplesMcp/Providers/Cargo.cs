@@ -114,10 +114,7 @@ internal class Cargo : IDependencyProvider
         }
 
         using var doc = JsonDocument.Parse(stdout);
-        IEnumerable<JsonElement> packages = doc
-            .RootElement
-            .GetProperty("packages")
-            .EnumerateArray()
+        IEnumerable<JsonElement> packages = JsonPath.Query(doc, ".packages[]")
             .Where(e => e
                 .GetProperty("name")
                 .GetString()?
