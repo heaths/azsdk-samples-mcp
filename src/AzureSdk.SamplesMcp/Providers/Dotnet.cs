@@ -28,8 +28,13 @@ internal class Dotnet : IDependencyProvider
         environment ??= DefaultEnvironment.Default;
         fileSystem ??= FileSystem.Default;
 
-        // Get the NuGet global packages directory
-        string? globalPackages = await GetGlobalPackagesDirectory(logger).ConfigureAwait(false);
+        // Get the NuGet global packages directory from environment or dotnet command
+        var globalPackages = environment.GetString("NUGET_PACKAGES");
+        if (string.IsNullOrEmpty(globalPackages))
+        {
+            globalPackages = await GetGlobalPackagesDirectory(logger).ConfigureAwait(false);
+        }
+
         if (string.IsNullOrEmpty(globalPackages))
         {
             logger?.LogDebug("Could not determine NuGet global packages directory");
