@@ -13,6 +13,7 @@ public static class Tools
 {
     private static readonly IDependencyProvider[] s_providers = [
         new Cargo(),
+        new Node(),
     ];
 
     [McpServerTool(Name = "dependencies")]
