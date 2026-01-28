@@ -146,7 +146,7 @@ internal class Node : IDependencyProvider
                 ? versionElement.GetString()
                 : null;
 
-            if (Package.TryCreate(name, version, out Package? package))
+            if (NodePackage.TryCreate(name, version, out NodePackage? package))
             {
                 logger?.LogDebug("Adding dependency {}@{}", name, version);
                 dependencies.Add(new Dependency(package.Name, package.Version));
@@ -157,9 +157,9 @@ internal class Node : IDependencyProvider
     }
 }
 
-internal record Package(string Name, string Version)
+internal record NodePackage(string Name, string Version)
 {
-    public static bool TryCreate(string? name, string? version, [NotNullWhen(true)] out Package? package)
+    public static bool TryCreate(string? name, string? version, [NotNullWhen(true)] out NodePackage? package)
     {
         package = null;
         if (string.IsNullOrWhiteSpace(name))
