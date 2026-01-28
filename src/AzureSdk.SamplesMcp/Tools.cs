@@ -14,6 +14,7 @@ public static class Tools
     private static readonly IDependencyProvider[] s_providers = [
         new Cargo(),
         new Dotnet(),
+        new Node(),
     ];
 
     [McpServerTool(Name = "dependencies")]
