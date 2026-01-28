@@ -20,7 +20,7 @@ public class CargoTests
         // Arrange
         var fileSystem = CreateFileSystem();
         var cargo = new Cargo();
-        var directory = "test-project";
+        var directory = "cargo-project";
 
         // Act
         var result = cargo.HasProject(directory, fileSystem);
