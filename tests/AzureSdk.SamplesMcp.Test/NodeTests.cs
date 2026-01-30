@@ -58,7 +58,7 @@ public class NodeTests
             new("@azure/keyvault-secrets", "4.10.0")
         };
 
-        var samples = await provider.GetSamples(".", dependencies, fileSystem: fs);
+        var samples = await provider.GetSamples(".", dependencies, processService: null!, fileSystem: fs);
         var sampleList = samples.ToList();
 
         Assert.HasCount(1, sampleList);
@@ -76,7 +76,7 @@ public class NodeTests
             new("@azure/identity", "4.7.0")
         };
 
-        var samples = await provider.GetSamples("pnpm-test", dependencies, fileSystem: fs);
+        var samples = await provider.GetSamples("pnpm-test", dependencies, processService: null!, fileSystem: fs);
         var sampleList = samples.ToList();
 
         Assert.HasCount(1, sampleList);
@@ -94,7 +94,7 @@ public class NodeTests
             new("@azure/identity", "4.7.0")
         };
 
-        var samples = await provider.GetSamples(".cargo", dependencies, fileSystem: fs);
+        var samples = await provider.GetSamples(".cargo", dependencies, processService: null!, fileSystem: fs);
         var sampleList = samples.ToList();
 
         Assert.HasCount(0, sampleList);
@@ -107,7 +107,7 @@ public class NodeTests
         Node provider = new();
         var dependencies = new List<Dependency>();
 
-        var samples = await provider.GetSamples(".", dependencies, fileSystem: fs);
+        var samples = await provider.GetSamples(".", dependencies, processService: null!, fileSystem: fs);
         var sampleList = samples.ToList();
 
         Assert.HasCount(0, sampleList);
@@ -123,7 +123,7 @@ public class NodeTests
             new("@azure/nonexistent", "1.0.0")
         };
 
-        var samples = await provider.GetSamples(".", dependencies, fileSystem: fs);
+        var samples = await provider.GetSamples(".", dependencies, processService: null!, fileSystem: fs);
         var sampleList = samples.ToList();
 
         Assert.HasCount(0, sampleList);

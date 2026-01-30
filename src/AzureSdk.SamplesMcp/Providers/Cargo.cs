@@ -17,14 +17,14 @@ internal class Cargo : IDependencyProvider
         return fileSystem.FileExists(manifestPath);
     }
 
-    public async Task<IEnumerable<Dependency>> GetDependencies(string directory, ILogger? logger = default, FileSystem? fileSystem = null)
+    public async Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = default, FileSystem? fileSystem = null)
     {
         var manifestPath = Path.Combine(directory, "Cargo.toml");
-        IEnumerable<Crate> crates = await GetDependencyInfo(manifestPath, logger: logger, fileSystem: fileSystem).ConfigureAwait(false);
+        IEnumerable<Crate> crates = await GetDependencyInfo(manifestPath, processService, logger: logger, fileSystem: fileSystem).ConfigureAwait(false);
         return crates.Select(c => new Dependency(c.Name, c.Version));
     }
 
-    public async Task<IEnumerable<string>> GetSamples(string directory, IEnumerable<Dependency> dependencies, ILogger? logger = default, IEnvironment? environment = null, FileSystem? fileSystem = null)
+    public async Task<IEnumerable<string>> GetSamples(string directory, IEnumerable<Dependency> dependencies, IExternalProcessService processService, ILogger? logger = default, IEnvironment? environment = null, FileSystem? fileSystem = null)
     {
         environment ??= DefaultEnvironment.Default;
         fileSystem ??= FileSystem.Default;
@@ -46,13 +46,12 @@ internal class Cargo : IDependencyProvider
             return [];
 
         var manifestPath = Path.Combine(directory, "Cargo.toml");
-        IEnumerable<Crate> crates = await GetDependencyInfo(manifestPath, logger: logger, fileSystem: fileSystem).ConfigureAwait(false);
-
-        var dependencySet = dependencies.Select(d => $"{d.Name}-{d.Version}").ToHashSet();
-        if (dependencySet is { Count: > 0 })
-        {
-            crates = crates.Where(c => dependencySet.Contains(c.DirectoryName));
-        }
+        
+        // Convert dependencies to crates
+        var crates = dependencies
+            .Where(d => Crate.TryCreate(d.Name, d.Version, out _))
+            .Select(d => new Crate(d.Name!, d.Version!))
+            .ToList();
 
         List<string> samples = [];
         foreach (Crate crate in crates)
@@ -86,28 +85,26 @@ internal class Cargo : IDependencyProvider
         return samples;
     }
 
-    private static async Task<IEnumerable<Crate>> GetDependencyInfo(string manifestPath, ILogger? logger, FileSystem? fileSystem)
+    private static async Task<IEnumerable<Crate>> GetDependencyInfo(string manifestPath, IExternalProcessService processService, ILogger? logger, FileSystem? fileSystem)
     {
         fileSystem ??= FileSystem.Default;
 
-        using Command cargo = new("cargo", logger)
-        {
-            Arguments =
-            {
-                "metadata",
-                "--format-version", "1",
-                "--manifest-path", manifestPath,
-            },
-            WorkingDirectory = Path.GetDirectoryName(manifestPath),
-        };
+        var workingDirectory = Path.GetDirectoryName(manifestPath);
+        var arguments = $"metadata --format-version 1 --manifest-path \"{manifestPath}\"";
 
-        var exitCode = await cargo.Run().ConfigureAwait(false);
-        if (exitCode != 0)
+        logger?.LogDebug("Running: cargo {}", arguments);
+
+        ProcessResult result = await processService.ExecuteAsync(
+            "cargo",
+            arguments,
+            cancellationToken: default).ConfigureAwait(false);
+
+        if (result.ExitCode != 0)
         {
-            throw new McpException($"{cargo.Name} failed with exit code {exitCode}");
+            throw new McpException($"cargo failed with exit code {result.ExitCode}");
         }
 
-        var stdout = cargo.StandardOutput;
+        var stdout = result.Output;
         if (string.IsNullOrWhiteSpace(stdout))
         {
             return [];

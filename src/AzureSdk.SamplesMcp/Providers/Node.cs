@@ -17,7 +17,7 @@ internal class Node : IDependencyProvider
         return fileSystem.FileExists(manifestPath);
     }
 
-    public async Task<IEnumerable<Dependency>> GetDependencies(string directory, ILogger? logger = default, FileSystem? fileSystem = null)
+    public async Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = default, FileSystem? fileSystem = null)
     {
         fileSystem ??= FileSystem.Default;
 
@@ -28,19 +28,19 @@ internal class Node : IDependencyProvider
         if (fileSystem.FileExists(pnpmLockPath))
         {
             logger?.LogDebug("Found pnpm-lock.yaml, using pnpm");
-            return await GetPnpmDependencies(directory, logger).ConfigureAwait(false);
+            return await GetPnpmDependencies(directory, processService, logger).ConfigureAwait(false);
         }
         else if (fileSystem.FileExists(npmLockPath))
         {
             logger?.LogDebug("Found package-lock.json, using npm");
-            return await GetNpmDependencies(directory, logger).ConfigureAwait(false);
+            return await GetNpmDependencies(directory, processService, logger).ConfigureAwait(false);
         }
 
         logger?.LogWarning("No lock file found (package-lock.json or pnpm-lock.yaml)");
         return [];
     }
 
-    public async Task<IEnumerable<string>> GetSamples(string directory, IEnumerable<Dependency> dependencies, ILogger? logger = default, IEnvironment? environment = null, FileSystem? fileSystem = null)
+    public async Task<IEnumerable<string>> GetSamples(string directory, IEnumerable<Dependency> dependencies, IExternalProcessService processService, ILogger? logger = default, IEnvironment? environment = null, FileSystem? fileSystem = null)
     {
         fileSystem ??= FileSystem.Default;
 
@@ -84,40 +84,37 @@ internal class Node : IDependencyProvider
         return samples;
     }
 
-    private static async Task<IEnumerable<Dependency>> GetNpmDependencies(string directory, ILogger? logger)
+    private static async Task<IEnumerable<Dependency>> GetNpmDependencies(string directory, IExternalProcessService processService, ILogger? logger)
     {
-        return await GetPackageManagerDependencies("npm", ".dependencies", directory, logger).ConfigureAwait(false);
+        return await GetPackageManagerDependencies("npm", ".dependencies", directory, processService, logger).ConfigureAwait(false);
     }
 
-    private static async Task<IEnumerable<Dependency>> GetPnpmDependencies(string directory, ILogger? logger)
+    private static async Task<IEnumerable<Dependency>> GetPnpmDependencies(string directory, IExternalProcessService processService, ILogger? logger)
     {
-        return await GetPackageManagerDependencies("pnpm", ".[].dependencies", directory, logger).ConfigureAwait(false);
+        return await GetPackageManagerDependencies("pnpm", ".[].dependencies", directory, processService, logger).ConfigureAwait(false);
     }
 
     private static async Task<IEnumerable<Dependency>> GetPackageManagerDependencies(
         string commandName,
         string jsonPath,
         string directory,
+        IExternalProcessService processService,
         ILogger? logger)
     {
-        using Command command = new(commandName, logger)
-        {
-            Arguments =
-            {
-                "list",
-                "--json",
-                "--depth=0",
-            },
-            WorkingDirectory = directory,
-        };
+        var arguments = "list --json --depth=0";
+        logger?.LogDebug("Running: {} {}", commandName, arguments);
 
-        var exitCode = await command.Run().ConfigureAwait(false);
-        if (exitCode != 0)
+        ProcessResult result = await processService.ExecuteAsync(
+            commandName,
+            arguments,
+            cancellationToken: default).ConfigureAwait(false);
+
+        if (result.ExitCode != 0)
         {
-            throw new McpException($"{command.Name} failed with exit code {exitCode}");
+            throw new McpException($"{commandName} failed with exit code {result.ExitCode}");
         }
 
-        var stdout = command.StandardOutput;
+        var stdout = result.Output;
         if (string.IsNullOrWhiteSpace(stdout))
         {
             return [];

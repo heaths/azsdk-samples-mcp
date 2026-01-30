@@ -1,4 +1,5 @@
 ﻿using AzureSdk.SamplesMcp;
+using AzureSdk.SamplesMcp.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -12,6 +13,7 @@ builder.Logging.SetMinimumLevel(LogLevel.Debug);
 builder.Services
     .AddSingleton(DefaultEnvironment.Default)
     .AddSingleton(FileSystem.Default)
+    .AddSingleton<IExternalProcessService, ExternalProcessService>()
     .AddMcpServer()
     .WithStdioServerTransport()
     .WithToolsFromAssembly()
