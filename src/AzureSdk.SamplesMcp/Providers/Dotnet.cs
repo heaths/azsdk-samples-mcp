@@ -92,6 +92,7 @@ internal class Dotnet : IDependencyProvider
         ProcessResult result = await processService.ExecuteAsync(
             "dotnet",
             arguments,
+            workingDirectory: null,
             cancellationToken: default).ConfigureAwait(false);
 
         if (result.ExitCode != 0)
@@ -123,6 +124,7 @@ internal class Dotnet : IDependencyProvider
         ProcessResult result = await processService.ExecuteAsync(
             "dotnet",
             arguments,
+            workingDirectory: directory,
             environmentVariables: new Dictionary<string, string> { { "DOTNET_CLI_WORKLOAD_UPDATE_NOTIFY_DISABLE", "true" } },
             cancellationToken: default).ConfigureAwait(false);
 

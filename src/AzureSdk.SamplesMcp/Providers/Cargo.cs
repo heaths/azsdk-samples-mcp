@@ -89,7 +89,6 @@ internal class Cargo : IDependencyProvider
     {
         fileSystem ??= FileSystem.Default;
 
-        var workingDirectory = Path.GetDirectoryName(manifestPath);
         var arguments = $"metadata --format-version 1 --manifest-path \"{manifestPath}\"";
 
         logger?.LogDebug("Running: cargo {}", arguments);
@@ -97,6 +96,7 @@ internal class Cargo : IDependencyProvider
         ProcessResult result = await processService.ExecuteAsync(
             "cargo",
             arguments,
+            workingDirectory: null,
             cancellationToken: default).ConfigureAwait(false);
 
         if (result.ExitCode != 0)

@@ -107,6 +107,7 @@ internal class Node : IDependencyProvider
         ProcessResult result = await processService.ExecuteAsync(
             commandName,
             arguments,
+            workingDirectory: directory,
             cancellationToken: default).ConfigureAwait(false);
 
         if (result.ExitCode != 0)

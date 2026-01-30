@@ -18,10 +18,11 @@ public class ExternalProcessService(ILogger<ExternalProcessService> logger) : IE
     /// <summary>
     /// Executes an external process and captures its stdout and stderr.
     /// </summary>
-    /// <param name="fileName">The name or path of the executable to run. In the case of a bare executable name, 
+    /// <param name="executablePath">The name or path of the executable to run. In the case of a bare executable name, 
     /// the operating system resolves the executable using its standard search rules (including directories
     /// listed in the PATH environment variable).</param>
     /// <param name="arguments">Command-line arguments to pass to the process.</param>
+    /// <param name="workingDirectory">Working directory for the process. If null, uses the current directory.</param>
     /// <param name="environmentVariables">
     /// Optional environment variables. If null, the process inherits the parent environment.
     /// </param>
@@ -40,7 +41,7 @@ public class ExternalProcessService(ILogger<ExternalProcessService> logger) : IE
     /// Thrown when <paramref name="operationTimeoutSeconds"/> is less than or equal to zero.
     /// </exception>
     /// <exception cref="ArgumentException">
-    /// Thrown when <paramref name="fileName"/> is null or empty.
+    /// Thrown when <paramref name="executablePath"/> is null or empty.
     /// </exception>
     /// <exception cref="InvalidOperationException">
     /// Thrown when the process fails to start.
@@ -130,21 +131,22 @@ public class ExternalProcessService(ILogger<ExternalProcessService> logger) : IE
     /// </remarks>
     ///
     public async Task<ProcessResult> ExecuteAsync(
-        string fileName,
+        string executablePath,
         string arguments,
+        string? workingDirectory = null,
         IDictionary<string, string>? environmentVariables = null,
         int operationTimeoutSeconds = 300,
         CancellationToken cancellationToken = default)
     {
         var operationTimeout = ValidateTimeout(operationTimeoutSeconds);
 
-        using Process process = CreateProcess(fileName, arguments, environmentVariables);
+        using Process process = CreateProcess(executablePath, arguments, workingDirectory, environmentVariables);
         using ProcessStreamReader stdoutReader = new(process, isErrorStream: false, logger);
         using ProcessStreamReader stderrReader = new(process, isErrorStream: true, logger);
 
         if (!process.Start())
         {
-            throw new InvalidOperationException($"Failed to start process: {fileName}");
+            throw new InvalidOperationException($"Failed to start process: {executablePath}");
         }
 
         Task<string> stdoutTask = stdoutReader.ReadToEndAsync();
@@ -162,7 +164,7 @@ public class ExternalProcessService(ILogger<ExternalProcessService> logger) : IE
             // Timeout may be thrown either:
             //   - Case A: before the process had exited, or
             //   - Case B: after the process had already exited, but before streams were fully drained.
-            throw HandleTimeout(process, operationTimeout, fileName, arguments);
+            throw HandleTimeout(process, operationTimeout, executablePath, arguments);
         }
         catch (OperationCanceledException oce) when (cancellationToken.IsCancellationRequested)
         {
@@ -170,7 +172,7 @@ public class ExternalProcessService(ILogger<ExternalProcessService> logger) : IE
             // OCE may be thrown either:
             //   - Case A: by WaitForExitAsync while the process is still running, or
             //   - Case B: by WaitAsync after the process has already exited.
-            HandleCancellation(process, fileName, arguments, oce);
+            HandleCancellation(process, executablePath, arguments, oce);
             // 'throw;' here preserves the original stack trace from where the OCE was first thrown,
             // inside WaitAsync or WaitForExitAsync not from this catch block.
             throw;
@@ -186,7 +188,7 @@ public class ExternalProcessService(ILogger<ExternalProcessService> logger) : IE
             process.ExitCode,
             stdout,
             stderr,
-            $"{fileName} {arguments}");
+            $"{executablePath} {arguments}");
 
         // The `using` declarations at the top ensure that both ProcessStreamReader and Process are disposed on
         // every exit path—normal completion, timeout, or cancellation — unsubscribing handlers and releasing OS 
@@ -243,13 +245,13 @@ public class ExternalProcessService(ILogger<ExternalProcessService> logger) : IE
     /// Creates and configures a <see cref="Process"/> for execution with redirected stdout/stderr/stdin and
     /// applied environment variables.
     /// </summary>
-    private static Process CreateProcess(string fileName, string arguments, IDictionary<string, string>? environmentVariables)
+    private static Process CreateProcess(string executablePath, string arguments, string? workingDirectory, IDictionary<string, string>? environmentVariables)
     {
-        ArgumentException.ThrowIfNullOrEmpty(fileName);
+        ArgumentException.ThrowIfNullOrEmpty(executablePath);
 
         var startInfo = new ProcessStartInfo
         {
-            FileName = fileName,
+            FileName = executablePath,
             Arguments = arguments,
 
             RedirectStandardOutput = true,
@@ -261,6 +263,11 @@ public class ExternalProcessService(ILogger<ExternalProcessService> logger) : IE
             StandardOutputEncoding = Encoding.UTF8,
             StandardErrorEncoding = Encoding.UTF8
         };
+
+        if (!string.IsNullOrEmpty(workingDirectory))
+        {
+            startInfo.WorkingDirectory = workingDirectory;
+        }
 
         if (environmentVariables is not null)
         {

@@ -30,6 +30,7 @@ public class CargoTests
         public Task<ProcessResult> ExecuteAsync(
             string executablePath,
             string arguments,
+            string? workingDirectory = null,
             IDictionary<string, string>? environmentVariables = default,
             int operationTimeoutSeconds = 300,
             CancellationToken cancellationToken = default)
