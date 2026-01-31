@@ -51,20 +51,23 @@ internal class Node : IDependencyProvider
             return [];
         }
 
+        // Get all @azure/* packages from npm/pnpm list
+        IEnumerable<Dependency> allDependencies = await GetDependencies(directory, processService, logger, fileSystem).ConfigureAwait(false);
+
+        // If dependencies parameter is not empty, filter to only those specified
         var dependencySet = dependencies.Select(d => d.Name).ToHashSet();
-        if (dependencySet is not { Count: > 0 })
+        if (dependencySet is { Count: > 0 })
         {
-            logger?.LogDebug("No dependencies to search for samples");
-            return [];
+            allDependencies = allDependencies.Where(d => dependencySet.Contains(d.Name));
         }
 
         List<string> samples = [];
-        foreach (var dependencyName in dependencySet)
+        foreach (var dependency in allDependencies)
         {
-            logger?.LogDebug("Checking dependency {}", dependencyName);
+            logger?.LogDebug("Checking dependency {}", dependency.Name);
 
             // Handle scoped packages (e.g., @azure/keyvault-secrets)
-            var dependencyPath = Path.Combine(nodeModulesPath, dependencyName);
+            var dependencyPath = Path.Combine(nodeModulesPath, dependency.Name);
 
             logger?.LogDebug("Checking dependency directory {}", dependencyPath);
             if (!fileSystem.DirectoryExists(dependencyPath))

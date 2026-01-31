@@ -47,11 +47,15 @@ internal class Cargo : IDependencyProvider
 
         var manifestPath = Path.Combine(directory, "Cargo.toml");
 
-        // Convert dependencies to crates
-        var crates = dependencies
-            .Where(d => Crate.TryCreate(d.Name, d.Version, out _))
-            .Select(d => new Crate(d.Name!, d.Version!))
-            .ToList();
+        // Get all azure_* crates from cargo metadata
+        IEnumerable<Crate> crates = await GetDependencyInfo(manifestPath, processService, logger: logger, fileSystem: fileSystem).ConfigureAwait(false);
+
+        // If dependencies parameter is not empty, filter to only those specified
+        var dependencySet = dependencies.Select(d => $"{d.Name}-{d.Version}").ToHashSet();
+        if (dependencySet is { Count: > 0 })
+        {
+            crates = crates.Where(c => dependencySet.Contains(c.DirectoryName));
+        }
 
         List<string> samples = [];
         foreach (Crate crate in crates)

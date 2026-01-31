@@ -56,11 +56,15 @@ internal class Dotnet : IDependencyProvider
         if (!fileSystem.DirectoryExists(globalPackages))
             return [];
 
-        // Convert dependencies to packages
-        var packages = dependencies
-            .Where(d => DotnetPackage.TryCreate(d.Name, d.Version, out _))
-            .Select(d => new DotnetPackage(d.Name!, d.Version!))
-            .ToList();
+        // Get all Azure.* packages from dotnet list
+        IEnumerable<DotnetPackage> packages = await GetDependencyInfo(directory, processService, logger: logger).ConfigureAwait(false);
+
+        // If dependencies parameter is not empty, filter to only those specified
+        var dependencySet = dependencies.Select(d => d.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        if (dependencySet is { Count: > 0 })
+        {
+            packages = packages.Where(p => dependencySet.Contains(p.Id));
+        }
 
         List<string> samples = [];
         foreach (DotnetPackage package in packages)
