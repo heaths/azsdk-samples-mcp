@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using AzureSdk.SamplesMcp.Providers;
+using AzureSdk.SamplesMcp.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol;
@@ -25,6 +26,7 @@ public static class Tools
     )
     {
         ILogger logger = context.Services!.GetRequiredService<ILoggerFactory>().CreateLogger("Dependencies");
+        IExternalProcessService processService = context.Services!.GetRequiredService<IExternalProcessService>();
         FileSystem fileSystem = context.Services?.GetService<FileSystem>() ?? FileSystem.Default;
 
         if (fileSystem.FileExists(path))
@@ -38,7 +40,7 @@ public static class Tools
         if (result is not ({ } directory, { } provider))
             return [];
         logger.LogDebug("Found provider {} for directory {}", provider.GetType().Name, directory);
-        IEnumerable<Dependency> dependencies = await provider.GetDependencies(directory, logger);
+        IEnumerable<Dependency> dependencies = await provider.GetDependencies(directory, processService, logger);
         return dependencies.Select(d => d.Name);
     }
 
@@ -51,6 +53,7 @@ public static class Tools
     )
     {
         ILogger logger = context.Services!.GetRequiredService<ILoggerFactory>().CreateLogger("Samples");
+        IExternalProcessService processService = context.Services!.GetRequiredService<IExternalProcessService>();
         FileSystem fileSystem = context.Services?.GetService<FileSystem>() ?? FileSystem.Default;
 
         if (fileSystem.FileExists(path))
@@ -65,7 +68,7 @@ public static class Tools
             return [];
         logger.LogDebug("Found provider {} for directory {}", provider.GetType().Name, directory);
 
-        IEnumerable<Dependency> dependencies = await provider.GetDependencies(directory, logger);
+        IEnumerable<Dependency> dependencies = await provider.GetDependencies(directory, processService, logger);
 
         // Filter by dependency parameter if provided
         if (!string.IsNullOrWhiteSpace(dependency))
@@ -73,7 +76,7 @@ public static class Tools
             dependencies = dependencies.Where(d => string.Equals(d.Name, dependency, StringComparison.OrdinalIgnoreCase));
         }
 
-        IEnumerable<string> samples = await provider.GetSamples(directory, dependencies, logger);
+        IEnumerable<string> samples = await provider.GetSamples(directory, dependencies, processService, logger);
         return samples.Select(samplePath =>
         {
             // cspell:ignore dylo

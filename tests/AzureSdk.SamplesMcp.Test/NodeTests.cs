@@ -1,5 +1,6 @@
 using System.Reflection;
 using AzureSdk.SamplesMcp.Providers;
+using AzureSdk.SamplesMcp.Test.Services;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 
@@ -49,6 +50,113 @@ public class NodeTests
     }
 
     [TestMethod]
+    public async Task GetDependencies_ReturnsAzureDependencies_ForNpm()
+    {
+        // Arrange
+        var fileSystem = CreateFileSystem();
+        var provider = new Node();
+        var directory = ".";
+
+        // Mock npm list output
+        var mockOutput = """
+        {
+          "dependencies": {
+            "@azure/keyvault-secrets": {
+              "version": "4.10.0"
+            },
+            "@azure/identity": {
+              "version": "4.7.0"
+            },
+            "express": {
+              "version": "4.18.2"
+            }
+          }
+        }
+        """;
+
+        var processService = new MockProcessService(mockOutput);
+
+        // Act
+        var dependencies = await provider.GetDependencies(directory, processService, fileSystem: fileSystem);
+        var dependencyList = dependencies.ToList();
+
+        // Assert
+        Assert.HasCount(2, dependencyList);
+        Assert.IsTrue(dependencyList.All(d => d.Name!.StartsWith("@azure/")));
+        Assert.IsTrue(dependencyList.Any(d => d.Name == "@azure/keyvault-secrets"));
+        Assert.IsTrue(dependencyList.Any(d => d.Name == "@azure/identity"));
+    }
+
+    [TestMethod]
+    public async Task GetDependencies_FiltersNonAzurePackages_ForNpm()
+    {
+        // Arrange
+        var fileSystem = CreateFileSystem();
+        var provider = new Node();
+        var directory = ".";
+
+        // Mock npm list output with multiple packages
+        var mockOutput = """
+        {
+          "dependencies": {
+            "@azure/keyvault-secrets": {
+              "version": "4.10.0"
+            },
+            "lodash": {
+              "version": "4.17.21"
+            },
+            "express": {
+              "version": "4.18.2"
+            }
+          }
+        }
+        """;
+
+        var processService = new MockProcessService(mockOutput);
+
+        // Act
+        var dependencies = await provider.GetDependencies(directory, processService, fileSystem: fileSystem);
+        var dependencyList = dependencies.ToList();
+
+        // Assert
+        Assert.HasCount(1, dependencyList);
+        Assert.AreEqual("@azure/keyvault-secrets", dependencyList[0].Name);
+        Assert.AreEqual("4.10.0", dependencyList[0].Version);
+    }
+
+    [TestMethod]
+    public async Task GetDependencies_ReturnsEmpty_WhenNoAzurePackages()
+    {
+        // Arrange
+        var fileSystem = CreateFileSystem();
+        var provider = new Node();
+        var directory = ".";
+
+        // Mock npm list output without Azure packages
+        var mockOutput = """
+        {
+          "dependencies": {
+            "express": {
+              "version": "4.18.2"
+            },
+            "lodash": {
+              "version": "4.17.21"
+            }
+          }
+        }
+        """;
+
+        var processService = new MockProcessService(mockOutput);
+
+        // Act
+        var dependencies = await provider.GetDependencies(directory, processService, fileSystem: fileSystem);
+        var dependencyList = dependencies.ToList();
+
+        // Assert
+        Assert.HasCount(0, dependencyList);
+    }
+
+    [TestMethod]
     public async Task GetSamples_ReturnsReadme_ForNpmProject()
     {
         FileSystem fs = CreateFileSystem();
@@ -58,7 +166,20 @@ public class NodeTests
             new("@azure/keyvault-secrets", "4.10.0")
         };
 
-        var samples = await provider.GetSamples(".", dependencies, fileSystem: fs);
+        // Mock npm list output
+        var mockOutput = """
+        {
+          "dependencies": {
+            "@azure/keyvault-secrets": {
+              "version": "4.10.0"
+            }
+          }
+        }
+        """;
+
+        var processService = new MockProcessService(mockOutput);
+
+        var samples = await provider.GetSamples(".", dependencies, processService, fileSystem: fs);
         var sampleList = samples.ToList();
 
         Assert.HasCount(1, sampleList);
@@ -76,7 +197,22 @@ public class NodeTests
             new("@azure/identity", "4.7.0")
         };
 
-        var samples = await provider.GetSamples("pnpm-test", dependencies, fileSystem: fs);
+        // Mock pnpm list output
+        var mockOutput = """
+        [
+          {
+            "dependencies": {
+              "@azure/identity": {
+                "version": "4.7.0"
+              }
+            }
+          }
+        ]
+        """;
+
+        var processService = new MockProcessService(mockOutput);
+
+        var samples = await provider.GetSamples("pnpm-test", dependencies, processService, fileSystem: fs);
         var sampleList = samples.ToList();
 
         Assert.HasCount(1, sampleList);
@@ -94,23 +230,44 @@ public class NodeTests
             new("@azure/identity", "4.7.0")
         };
 
-        var samples = await provider.GetSamples(".cargo", dependencies, fileSystem: fs);
+        var mockOutput = "{}";
+        var processService = new MockProcessService(mockOutput);
+
+        var samples = await provider.GetSamples(".cargo", dependencies, processService, fileSystem: fs);
         var sampleList = samples.ToList();
 
         Assert.HasCount(0, sampleList);
     }
 
     [TestMethod]
-    public async Task GetSamples_ReturnsEmpty_WhenNoDependencies()
+    public async Task GetSamples_ReturnsAllAzurePackages_WhenDependenciesEmpty()
     {
         FileSystem fs = CreateFileSystem();
         Node provider = new();
         var dependencies = new List<Dependency>();
 
-        var samples = await provider.GetSamples(".", dependencies, fileSystem: fs);
+        // Mock npm list output with multiple Azure packages
+        var mockOutput = """
+        {
+          "dependencies": {
+            "@azure/keyvault-secrets": {
+              "version": "4.10.0"
+            },
+            "@azure/identity": {
+              "version": "4.7.0"
+            }
+          }
+        }
+        """;
+
+        var processService = new MockProcessService(mockOutput);
+
+        var samples = await provider.GetSamples(".", dependencies, processService, fileSystem: fs);
         var sampleList = samples.ToList();
 
-        Assert.HasCount(0, sampleList);
+        // Only @azure/keyvault-secrets exists in test content
+        Assert.HasCount(1, sampleList);
+        Assert.IsTrue(sampleList.Any(s => s.Contains("@azure/keyvault-secrets")));
     }
 
     [TestMethod]
@@ -123,7 +280,20 @@ public class NodeTests
             new("@azure/nonexistent", "1.0.0")
         };
 
-        var samples = await provider.GetSamples(".", dependencies, fileSystem: fs);
+        // Mock npm list output
+        var mockOutput = """
+        {
+          "dependencies": {
+            "@azure/keyvault-secrets": {
+              "version": "4.10.0"
+            }
+          }
+        }
+        """;
+
+        var processService = new MockProcessService(mockOutput);
+
+        var samples = await provider.GetSamples(".", dependencies, processService, fileSystem: fs);
         var sampleList = samples.ToList();
 
         Assert.HasCount(0, sampleList);

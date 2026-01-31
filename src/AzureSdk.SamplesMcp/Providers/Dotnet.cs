@@ -19,13 +19,13 @@ internal class Dotnet : IDependencyProvider
         return projectFiles.Any();
     }
 
-    public async Task<IEnumerable<Dependency>> GetDependencies(string directory, ILogger? logger = default, FileSystem? fileSystem = null)
+    public async Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = default, FileSystem? fileSystem = null)
     {
-        IEnumerable<DotnetPackage> packages = await GetDependencyInfo(directory, logger: logger).ConfigureAwait(false);
+        IEnumerable<DotnetPackage> packages = await GetDependencyInfo(directory, processService, logger: logger).ConfigureAwait(false);
         return packages.Select(p => new Dependency(p.Id, p.ResolvedVersion));
     }
 
-    public async Task<IEnumerable<string>> GetSamples(string directory, IEnumerable<Dependency> dependencies, ILogger? logger = default, IEnvironment? environment = null, FileSystem? fileSystem = null)
+    public async Task<IEnumerable<string>> GetSamples(string directory, IEnumerable<Dependency> dependencies, IExternalProcessService processService, ILogger? logger = default, IEnvironment? environment = null, FileSystem? fileSystem = null)
     {
         environment ??= DefaultEnvironment.Default;
         fileSystem ??= FileSystem.Default;
@@ -39,7 +39,7 @@ internal class Dotnet : IDependencyProvider
 
         if (string.IsNullOrEmpty(globalPackages))
         {
-            globalPackages = await GetGlobalPackagesDirectory(logger).ConfigureAwait(false);
+            globalPackages = await GetGlobalPackagesDirectory(processService, logger).ConfigureAwait(false);
             if (!string.IsNullOrEmpty(globalPackages))
             {
                 _globalPackages = globalPackages;
@@ -56,8 +56,10 @@ internal class Dotnet : IDependencyProvider
         if (!fileSystem.DirectoryExists(globalPackages))
             return [];
 
-        IEnumerable<DotnetPackage> packages = await GetDependencyInfo(directory, logger: logger).ConfigureAwait(false);
+        // Get all Azure.* packages from dotnet list
+        IEnumerable<DotnetPackage> packages = await GetDependencyInfo(directory, processService, logger: logger).ConfigureAwait(false);
 
+        // If dependencies parameter is not empty, filter to only those specified
         var dependencySet = dependencies.Select(d => d.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
         if (dependencySet is { Count: > 0 })
         {
@@ -86,26 +88,23 @@ internal class Dotnet : IDependencyProvider
         return samples;
     }
 
-    private static async Task<string?> GetGlobalPackagesDirectory(ILogger? logger)
+    private static async Task<string?> GetGlobalPackagesDirectory(IExternalProcessService processService, ILogger? logger)
     {
-        using Command dotnet = new("dotnet", logger)
-        {
-            Arguments =
-            {
-                "nuget",
-                "locals",
-                "global-packages",
-                "--list",
-            },
-        };
+        var arguments = "nuget locals global-packages --list";
+        logger?.LogDebug("Running: dotnet {}", arguments);
 
-        var exitCode = await dotnet.Run().ConfigureAwait(false);
-        if (exitCode != 0)
+        ProcessResult result = await processService.ExecuteAsync(
+            "dotnet",
+            arguments,
+            workingDirectory: null,
+            cancellationToken: default).ConfigureAwait(false);
+
+        if (result.ExitCode != 0)
         {
-            throw new McpException($"{dotnet.Name} failed with exit code {exitCode}");
+            throw new McpException($"dotnet failed with exit code {result.ExitCode}");
         }
 
-        var stdout = dotnet.StandardOutput;
+        var stdout = result.Output;
         if (string.IsNullOrWhiteSpace(stdout))
         {
             return null;
@@ -121,27 +120,24 @@ internal class Dotnet : IDependencyProvider
         return null;
     }
 
-    private static async Task<IEnumerable<DotnetPackage>> GetDependencyInfo(string directory, ILogger? logger)
+    private static async Task<IEnumerable<DotnetPackage>> GetDependencyInfo(string directory, IExternalProcessService processService, ILogger? logger)
     {
-        using Command dotnet = new("dotnet", logger)
-        {
-            Arguments =
-            {
-                "list",
-                "package",
-                "--format",
-                "json",
-            },
-            WorkingDirectory = directory,
-        };
+        var arguments = "list package --format json";
+        logger?.LogDebug("Running: dotnet {}", arguments);
 
-        var exitCode = await dotnet.Run().ConfigureAwait(false);
-        if (exitCode != 0)
+        ProcessResult result = await processService.ExecuteAsync(
+            "dotnet",
+            arguments,
+            workingDirectory: directory,
+            environmentVariables: new Dictionary<string, string> { { "DOTNET_CLI_WORKLOAD_UPDATE_NOTIFY_DISABLE", "true" } },
+            cancellationToken: default).ConfigureAwait(false);
+
+        if (result.ExitCode != 0)
         {
-            throw new McpException($"{dotnet.Name} failed with exit code {exitCode}");
+            throw new McpException($"dotnet failed with exit code {result.ExitCode}");
         }
 
-        var stdout = dotnet.StandardOutput;
+        var stdout = result.Output;
         if (string.IsNullOrWhiteSpace(stdout))
         {
             return [];
