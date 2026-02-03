@@ -42,7 +42,7 @@ When working with Azure SDKs, having access to relevant code examples can signif
 2. Install the MCP server as a global tool:
 
    ```bash
-   dotnet tool install --global AzureSdk.SamplesMcp --add-source github-heaths
+   dotnet tool install --global AzureSdk.SamplesMcp --add-source github-heaths --prerelease
    ```
 
 3. Add to VS Code settings (⌘, on macOS, Ctrl+, on Windows/Linux):
