@@ -1,12 +1,15 @@
 name: published
 
 on:
-  release:
-    types: [published]
+  workflow_run:
+    workflows: [release]
+    types: [completed]
+  workflow_dispatch:
 
 jobs:
   bump-version:
     runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     permissions:
       contents: write
       pull-requests: write
@@ -46,6 +49,6 @@ jobs:
           git add src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj
           git commit -m "Bump version to $NEW_VERSION"
           git push origin version-bump-$NEW_VERSION
-          gh pr create --title "Bump version to $NEW_VERSION" --body "Automated version bump after release ${{ github.event.release.tag_name }}" --base main --head version-bump-$NEW_VERSION
+          gh pr create --title "Bump version to $NEW_VERSION" --body "Automated version bump after release" --base main --head version-bump-$NEW_VERSION
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
