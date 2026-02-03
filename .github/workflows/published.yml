@@ -17,11 +17,24 @@ jobs:
           # Extract current version
           VERSION=$(grep -oP '(?<=<Version>)[^<]+' src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj)
 
-          # Parse and increment minor version
-          MAJOR=$(echo $VERSION | cut -d. -f1)
-          MINOR=$(echo $VERSION | cut -d. -f2)
-          PATCH=$(echo $VERSION | cut -d. -f3)
-          NEW_VERSION="$MAJOR.$((MINOR + 1)).0"
+          # Parse base version (strip prerelease if present)
+          if [[ "$VERSION" == *-* ]]; then
+            BASE_VERSION="${VERSION%%-*}"
+          else
+            BASE_VERSION="$VERSION"
+          fi
+
+          # Increment minor version
+          MAJOR=$(echo "$BASE_VERSION" | cut -d. -f1)
+          MINOR=$(echo "$BASE_VERSION" | cut -d. -f2)
+          NEW_BASE_VERSION="$MAJOR.$((MINOR + 1)).0"
+
+          # Add prerelease if original had prerelease
+          if [[ "$VERSION" == *-* ]]; then
+            NEW_VERSION="${NEW_BASE_VERSION}-preview.1"
+          else
+            NEW_VERSION="$NEW_BASE_VERSION"
+          fi
 
           # Update .csproj file
           sed -i "s/<Version>$VERSION<\/Version>/<Version>$NEW_VERSION<\/Version>/" src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj
