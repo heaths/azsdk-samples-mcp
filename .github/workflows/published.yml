@@ -55,6 +55,16 @@ jobs:
           
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Close any existing PR for this branch
+          EXISTING_PR=$(gh pr list --head version-bump-$NEW_VERSION --json number --jq '.[0].number' 2>/dev/null || echo "")
+          if [ -n "$EXISTING_PR" ]; then
+            gh pr close "$EXISTING_PR" --comment "Closing to create a new PR with updated changes"
+          fi
+          
+          # Delete the remote branch if it exists to avoid conflicts
+          git push origin --delete version-bump-$NEW_VERSION 2>/dev/null || true
+          
           git checkout -b version-bump-$NEW_VERSION
           git add src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj
           git commit -m "Bump version to $NEW_VERSION"
