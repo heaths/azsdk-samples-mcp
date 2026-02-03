@@ -61,4 +61,4 @@ jobs:
           git push origin version-bump-$NEW_VERSION
           gh pr create --title "Bump version to $NEW_VERSION" --body "$PR_BODY" --base main --head version-bump-$NEW_VERSION
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
