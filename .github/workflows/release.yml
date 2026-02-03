@@ -38,13 +38,13 @@ jobs:
         run: |
           echo "artifact_dir=${{ github.workspace }}/artifacts/output" >> "$GITHUB_OUTPUT"
       - name: Build
-        run: dotnet build src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj --configuration Release --no-restore --output "${{ steps.outputs.outputs.artifact_dir }}"
+        run: dotnet build src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj --configuration Release --no-restore -p:OutputPath="${{ steps.outputs.outputs.artifact_dir }}"
       - name: Attest release binary
         uses: actions/attest-build-provenance@v1
         with:
-          subject-path: "${{ steps.outputs.outputs.artifact_dir }}/AzureSdk.SamplesMcp"
+          subject-path: "${{ steps.outputs.outputs.artifact_dir }}/AzureSdk.SamplesMcp.dll"
       - name: Pack NuGet
-        run: dotnet pack src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj --configuration Release --no-build --output "${{ steps.outputs.outputs.artifact_dir }}"
+        run: dotnet pack src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj --configuration Release --no-build -p:OutputPath="${{ steps.outputs.outputs.artifact_dir }}" -p:PackageOutputPath="${{ steps.outputs.outputs.artifact_dir }}" /p:NoWarn=NU5104
       - name: Attest NuGet package
         uses: actions/attest-build-provenance@v1
         with:
