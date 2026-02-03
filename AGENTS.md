@@ -84,10 +84,32 @@ If `dotnet format` cannot fix remaining issues, manually address them according 
 
 ## Linting
 
-Before committing changes, run spell checking and Markdown linting using the repository skills:
+**ALWAYS use the repository skills for linting. Do not run linting commands directly.**
 
-- For spelling, use the cspell skill instructions in `.github/skills/cspell/SKILL.md` (honors repo config and version pinning).
-- For Markdown, use the markdownlint skill instructions in `.github/skills/markdownlint/SKILL.md` (honors repo config and version pinning).
+For all linting tasks:
+
+- **Spelling**: Follow the cspell skill instructions in [.github/skills/cspell/SKILL.md](.github/skills/cspell/SKILL.md) — This reads your `package.json` for version pinning and applies the project's cspell configuration.
+- **Markdown**: Follow the markdownlint skill instructions in [.github/skills/markdownlint/SKILL.md](.github/skills/markdownlint/SKILL.md) — This reads your `package.json` for version pinning and applies the project's markdownlint configuration.
+
+## Pre-commit Checklist
+
+Before creating a commit or pull request, run all quality checks:
+
+```bash
+# 1. Format .NET code
+dotnet format --severity warn
+
+# 2. Check spelling (see .github/skills/cspell/SKILL.md for command)
+# 3. Lint Markdown (see .github/skills/markdownlint/SKILL.md for command)
+
+# 4. Run tests
+dotnet test
+
+# 5. Build to verify no compilation errors
+dotnet build
+```
+
+All checks must pass before committing. See the skill files for the exact linting commands with proper version pinning.
 
 ## Logging
 

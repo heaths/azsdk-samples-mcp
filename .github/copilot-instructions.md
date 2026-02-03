@@ -41,10 +41,7 @@ Use MSTest 4.0 assertions and patterns for all tests.
 
 ## Commits and Pull Requests
 
-- Follow recommended git commit style (conventional commits format)
-- Pull request titles should follow git commit title style
-- Pull request descriptions should provide an overview of changes without being overly verbose
-- Don't describe every file—focus on the big picture of what changed and why
+See [.github/instructions/commits.instructions.md](instructions/commits.instructions.md) for detailed commit message guidelines.
 
 ## Important Notes
 

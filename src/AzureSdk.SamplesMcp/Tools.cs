@@ -22,7 +22,7 @@ public static class Tools
     ];
 
     [McpServerTool(Name = "dependencies")]
-    [Description("Lists dependencies in a project file or manifest")]
+    [Description("Discover Azure SDK dependencies (packages or crates) in your .NET, Node.js, or Rust project. Identifies which Azure services (Key Vault, Storage, CosmosDB, Identity, etc.) your project uses. Supports .csproj, package.json, and Cargo.toml files.")]
     public static async Task<IEnumerable<string>> GetDependencies(
         RequestContext<CallToolRequestParams> context,
         [Description("The path where to start looking for project or manifest files")] string path
@@ -48,7 +48,7 @@ public static class Tools
     }
 
     [McpServerTool(Name = "samples")]
-    [Description("Lists samples of dependencies of the current project")]
+    [Description("Find code examples and documentation for Azure SDK libraries in your project. Retrieves README files and sample code for services like Azure Key Vault, Azure Storage, Azure Identity, CosmosDB, and more. Use this to quickly learn how to use the Azure services your project depends on.")]
     public static async Task<IEnumerable<ContentBlock>> GetSamples(
         RequestContext<CallToolRequestParams> context,
         [Description("The path where to start looking for project or manifest files")] string path,
