@@ -7,6 +7,12 @@ on:
   pull_request:
     branches:
       - main
+  workflow_call:
+    inputs:
+      configuration:
+        description: Build configuration
+        type: string
+        default: Debug
 
 jobs:
   test:
@@ -20,9 +26,9 @@ jobs:
       - name: Restore
         run: dotnet restore
       - name: Build
-        run: dotnet build --no-restore
+        run: dotnet build --configuration ${{ inputs.configuration || 'Debug' }} --no-restore
       - name: Test
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test --configuration ${{ inputs.configuration || 'Debug' }} --no-build --verbosity normal
 
   analyze:
     runs-on: ubuntu-latest
