@@ -35,7 +35,9 @@ When working with Azure SDKs, having access to relevant code examples can signif
      --store-password-in-clear-text
    ```
 
-   Replace `YOUR_GITHUB_USERNAME` with your GitHub username and `YOUR_GITHUB_TOKEN` with your PAT.
+   Replace `YOUR_GITHUB_USERNAME` with your GitHub username (without quotes) and `YOUR_GITHUB_TOKEN` with your PAT (without quotes).
+
+   > **Note:** The `--store-password-in-clear-text` flag stores the token in plaintext in your NuGet configuration file. This is required because encrypted storage is not supported on all platforms. Keep your token secure and avoid committing NuGet configuration files to version control.
 
 2. Install the MCP server as a global tool:
 
