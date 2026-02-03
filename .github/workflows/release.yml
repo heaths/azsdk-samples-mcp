@@ -14,6 +14,11 @@ jobs:
   release:
     runs-on: ubuntu-latest
     needs: test
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+      attestations: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -28,9 +33,21 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Restore
         run: dotnet restore
+      - name: Define build outputs
+        id: outputs
+        run: |
+          echo "artifact_dir=${{ github.workspace }}/artifacts/output" >> "$GITHUB_OUTPUT"
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj --configuration Release --no-restore --output "${{ steps.outputs.outputs.artifact_dir }}"
+      - name: Attest release binary
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: "${{ steps.outputs.outputs.artifact_dir }}/AzureSdk.SamplesMcp"
       - name: Pack NuGet
-        run: dotnet pack src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj --configuration Release --no-build --output nupkg
+        run: dotnet pack src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj --configuration Release --no-build --output "${{ steps.outputs.outputs.artifact_dir }}"
+      - name: Attest NuGet package
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: "${{ steps.outputs.outputs.artifact_dir }}/*.nupkg"
       - name: Publish NuGet
-        run: dotnet nuget push nupkg/*.nupkg --source "https://nuget.pkg.github.com/heaths/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+        run: dotnet nuget push "${{ steps.outputs.outputs.artifact_dir }}/*.nupkg" --source "https://nuget.pkg.github.com/heaths/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
