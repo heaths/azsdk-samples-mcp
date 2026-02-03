@@ -21,13 +21,31 @@ When working with Azure SDKs, having access to relevant code examples can signif
 
 ### Quick Start
 
-1. Install the MCP server as a global tool:
+1. **Authenticate with GitHub Packages** (required even for public packages):
+
+   First, create a [GitHub Personal Access Token (PAT)](https://github.com/settings/tokens/new) with `read:packages` scope.
+
+   Then, configure the NuGet source with your GitHub username and token:
 
    ```bash
-   dotnet tool install --global --add-source "https://nuget.pkg.github.com/heaths/index.json" AzureSdk.SamplesMcp
+   dotnet nuget add source "https://nuget.pkg.github.com/heaths/index.json" \
+     --name github-heaths \
+     --username YOUR_GITHUB_USERNAME \
+     --password YOUR_GITHUB_TOKEN \
+     --store-password-in-clear-text
    ```
 
-2. Add to VS Code settings (⌘, on macOS, Ctrl+, on Windows/Linux):
+   Replace `YOUR_GITHUB_USERNAME` with your GitHub username (without quotes) and `YOUR_GITHUB_TOKEN` with your PAT (without quotes).
+
+   > **Note:** The `--store-password-in-clear-text` flag stores the token in plaintext in your NuGet configuration file. This is required because encrypted storage is not supported on all platforms. Keep your token secure and avoid committing NuGet configuration files to version control.
+
+2. Install the MCP server as a global tool:
+
+   ```bash
+   dotnet tool install --global AzureSdk.SamplesMcp --add-source github-heaths --prerelease
+   ```
+
+3. Add to VS Code settings (⌘, on macOS, Ctrl+, on Windows/Linux):
    - Search for "MCP Servers" and find your AI extension settings
    - Add this configuration:
 
@@ -40,7 +58,7 @@ When working with Azure SDKs, having access to relevant code examples can signif
      }
      ```
 
-3. Restart VS Code to load the MCP server
+4. Restart VS Code to load the MCP server
 
 ### Building from Source (Optional)
 
