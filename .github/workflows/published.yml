@@ -6,10 +6,6 @@ on:
     types: [completed]
   workflow_dispatch:
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
   bump-version:
     runs-on: ubuntu-latest
@@ -52,13 +48,13 @@ jobs:
           else
             PR_BODY="Automated version bump after release workflow completed"
           fi
-          
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           # Use a consistent branch name variable
           BRANCH_NAME="version-bump-$NEW_VERSION"
-          
+
           # Close any existing PR for this branch
           echo "Checking for existing PR on branch $BRANCH_NAME..."
           EXISTING_PR=$(gh pr list --head "$BRANCH_NAME" --json number --jq '.[0].number' 2>&1)
@@ -68,7 +64,7 @@ jobs:
           else
             echo "No existing PR found or unable to check"
           fi
-          
+
           # Delete the remote branch if it exists to avoid conflicts
           echo "Checking if remote branch $BRANCH_NAME exists..."
           if git ls-remote --heads origin "$BRANCH_NAME" | grep -q "$BRANCH_NAME"; then
@@ -77,7 +73,7 @@ jobs:
           else
             echo "Remote branch does not exist"
           fi
-          
+
           git checkout -b "$BRANCH_NAME"
           git add src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj
           git commit -m "Bump version to $NEW_VERSION"
