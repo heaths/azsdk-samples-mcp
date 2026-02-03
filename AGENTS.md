@@ -72,6 +72,8 @@ export AZURE_KEYVAULT_URL=https://your-vault.vault.azure.net/
 
 ## Code Style and Formatting
 
+For coding conventions and style guidance, also follow the instructions in [.github/copilot-instructions.md](.github/copilot-instructions.md).
+
 Before committing changes, run the formatter to fix style issues:
 
 ```bash

@@ -1,7 +1,9 @@
-using AzureSdk.SamplesMcp.Services;
+// Copyright 2026 Heath Stewart.
+// Licensed under the MIT License. See LICENSE.txt in the project root for license information.
+
 using Microsoft.Extensions.Logging;
 
-namespace AzureSdk.SamplesMcp;
+namespace AzureSdk.SamplesMcp.Services;
 
 internal interface IDependencyProvider
 {

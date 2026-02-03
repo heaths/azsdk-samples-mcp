@@ -1,6 +1,9 @@
+// Copyright 2026 Heath Stewart.
+// Licensed under the MIT License. See LICENSE.txt in the project root for license information.
+
 using System.Collections;
 
-namespace AzureSdk.SamplesMcp;
+namespace AzureSdk.SamplesMcp.Services;
 
 internal class TestEnvironment : IEnvironment, IEnumerable<KeyValuePair<string, string>>
 {

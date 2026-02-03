@@ -6,7 +6,15 @@ indent_style = space
 insert_final_newline = true
 trim_trailing_whitespace = true
 
+# Exempt test fixtures from formatting and linting
+[tests/**/Content/**]
+generated_code = true
+
 [*.cs]
+# File headers
+file_header_template = Copyright 2026 Heath Stewart.\nLicensed under the MIT License. See LICENSE.txt in the project root for license information.
+dotnet_diagnostic.IDE0073.severity = warning
+
 # New line preferences
 csharp_new_line_before_open_brace = all # vs-default: any
 csharp_new_line_before_else = true # vs-default: true

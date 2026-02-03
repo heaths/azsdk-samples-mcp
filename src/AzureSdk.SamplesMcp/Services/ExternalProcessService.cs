@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+// Copyright 2026 Heath Stewart.
+// Licensed under the MIT License. See LICENSE.txt in the project root for license information.
 
 using System.Diagnostics;
 using System.Text;
@@ -18,7 +18,7 @@ public class ExternalProcessService(ILogger<ExternalProcessService> logger) : IE
     /// <summary>
     /// Executes an external process and captures its stdout and stderr.
     /// </summary>
-    /// <param name="executablePath">The name or path of the executable to run. In the case of a bare executable name, 
+    /// <param name="executablePath">The name or path of the executable to run. In the case of a bare executable name,
     /// the operating system resolves the executable using its standard search rules (including directories
     /// listed in the PATH environment variable).</param>
     /// <param name="arguments">Command-line arguments to pass to the process.</param>
@@ -191,10 +191,15 @@ public class ExternalProcessService(ILogger<ExternalProcessService> logger) : IE
             $"{executablePath} {arguments}");
 
         // The `using` declarations at the top ensure that both ProcessStreamReader and Process are disposed on
-        // every exit path—normal completion, timeout, or cancellation — unsubscribing handlers and releasing OS 
+        // every exit path—normal completion, timeout, or cancellation — unsubscribing handlers and releasing OS
         // resources.
     }
 
+    /// <summary>
+    /// Parses the process output as JSON, or returns a structured error payload.
+    /// </summary>
+    /// <param name="result">The result of the process execution.</param>
+    /// <returns>A JSON element representing the parsed output or error details.</returns>
     public JsonElement ParseJsonOutput(ProcessResult result)
     {
         if (result.ExitCode != 0)
@@ -223,11 +228,17 @@ public class ExternalProcessService(ILogger<ExternalProcessService> logger) : IE
         }
     }
 
+    /// <summary>
+    /// Represents structured error information for failed process execution.
+    /// </summary>
     internal record ParseError(
         int ExitCode,
         string Error,
         string Command);
 
+    /// <summary>
+    /// Represents a fallback payload for non-JSON process output.
+    /// </summary>
     internal record ParseOutput(
         [property: JsonPropertyName("output")]
         string Output);

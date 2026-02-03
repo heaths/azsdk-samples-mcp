@@ -1,3 +1,6 @@
+// Copyright 2026 Heath Stewart.
+// Licensed under the MIT License. See LICENSE.txt in the project root for license information.
+
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using AzureSdk.SamplesMcp.Services;
@@ -7,8 +10,14 @@ using Path = System.IO.Path;
 
 namespace AzureSdk.SamplesMcp.Providers;
 
+/// <summary>
+/// Provides dependency discovery and sample lookup for Node.js projects.
+/// </summary>
 internal class Node : IDependencyProvider
 {
+    /// <summary>
+    /// Determines whether the specified directory contains a Node.js project.
+    /// </summary>
     public bool HasProject(string directory, FileSystem? fileSystem = null)
     {
         fileSystem ??= FileSystem.Default;
@@ -17,6 +26,9 @@ internal class Node : IDependencyProvider
         return fileSystem.FileExists(manifestPath);
     }
 
+    /// <summary>
+    /// Retrieves Azure SDK dependencies from the project lock file.
+    /// </summary>
     public async Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = default, FileSystem? fileSystem = null)
     {
         fileSystem ??= FileSystem.Default;
@@ -40,6 +52,9 @@ internal class Node : IDependencyProvider
         return [];
     }
 
+    /// <summary>
+    /// Locates README files for Azure SDK packages installed in node_modules.
+    /// </summary>
     public async Task<IEnumerable<string>> GetSamples(string directory, IEnumerable<Dependency> dependencies, IExternalProcessService processService, ILogger? logger = default, IEnvironment? environment = null, FileSystem? fileSystem = null)
     {
         fileSystem ??= FileSystem.Default;
@@ -158,6 +173,9 @@ internal class Node : IDependencyProvider
     }
 }
 
+/// <summary>
+/// Represents a resolved Node.js package with its name and version.
+/// </summary>
 internal record NodePackage(string Name, string Version)
 {
     public static bool TryCreate(string? name, string? version, [NotNullWhen(true)] out NodePackage? package)

@@ -1,9 +1,11 @@
+// Copyright 2026 Heath Stewart.
+// Licensed under the MIT License. See LICENSE.txt in the project root for license information.
+
 using System.Reflection;
-using AzureSdk.SamplesMcp.Providers;
-using AzureSdk.SamplesMcp.Test.Services;
+using AzureSdk.SamplesMcp.Services;
 using Microsoft.Extensions.FileProviders;
 
-namespace AzureSdk.SamplesMcp;
+namespace AzureSdk.SamplesMcp.Providers;
 
 [TestClass]
 public class CargoTests
