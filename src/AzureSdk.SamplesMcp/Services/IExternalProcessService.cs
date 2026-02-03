@@ -1,16 +1,22 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+// Copyright 2026 Heath Stewart.
+// Licensed under the MIT License. See LICENSE.txt in the project root for license information.
 
 using System.Text.Json;
 
 namespace AzureSdk.SamplesMcp.Services;
 
+/// <summary>
+/// Represents the results of running an external process.
+/// </summary>
 public record ProcessResult(
     int ExitCode,
     string Output,
     string Error,
     string Command);
 
+/// <summary>
+/// Defines an abstraction for executing external processes.
+/// </summary>
 public interface IExternalProcessService
 {
     /// <summary>
@@ -42,9 +48,9 @@ public interface IExternalProcessService
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Tries to parse the process output as JSON and return it as JsonElement
+    /// Tries to parse the process output as JSON and return it as a <see cref="JsonElement"/>.
     /// </summary>
-    /// <param name="result">Process execution result</param>
-    /// <returns>Parsed JSON element or formatted error object if parsing fails</returns>
+    /// <param name="result">Process execution result.</param>
+    /// <returns>Parsed JSON element or formatted error object if parsing fails.</returns>
     JsonElement ParseJsonOutput(ProcessResult result);
 }

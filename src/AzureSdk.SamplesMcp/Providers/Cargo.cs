@@ -1,3 +1,6 @@
+// Copyright 2026 Heath Stewart.
+// Licensed under the MIT License. See LICENSE.txt in the project root for license information.
+
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using AzureSdk.SamplesMcp.Services;
@@ -7,8 +10,14 @@ using Path = System.IO.Path;
 
 namespace AzureSdk.SamplesMcp.Providers;
 
+/// <summary>
+/// Provides dependency discovery and sample lookup for Rust projects.
+/// </summary>
 internal class Cargo : IDependencyProvider
 {
+    /// <summary>
+    /// Determines whether the specified directory contains a Rust project.
+    /// </summary>
     public bool HasProject(string directory, FileSystem? fileSystem = null)
     {
         fileSystem ??= FileSystem.Default;
@@ -17,6 +26,9 @@ internal class Cargo : IDependencyProvider
         return fileSystem.FileExists(manifestPath);
     }
 
+    /// <summary>
+    /// Retrieves Azure SDK dependencies from the Cargo manifest.
+    /// </summary>
     public async Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = default, FileSystem? fileSystem = null)
     {
         var manifestPath = Path.Combine(directory, "Cargo.toml");
@@ -24,6 +36,9 @@ internal class Cargo : IDependencyProvider
         return crates.Select(c => new Dependency(c.Name, c.Version));
     }
 
+    /// <summary>
+    /// Locates README and example files for Azure SDK crates referenced by the project.
+    /// </summary>
     public async Task<IEnumerable<string>> GetSamples(string directory, IEnumerable<Dependency> dependencies, IExternalProcessService processService, ILogger? logger = default, IEnvironment? environment = null, FileSystem? fileSystem = null)
     {
         environment ??= DefaultEnvironment.Default;
@@ -143,6 +158,9 @@ internal class Cargo : IDependencyProvider
     }
 }
 
+/// <summary>
+/// Represents a Rust crate with name and version metadata.
+/// </summary>
 internal record Crate(string Name, string Version)
 {
     public string DirectoryName => $"{Name}-{Version}";

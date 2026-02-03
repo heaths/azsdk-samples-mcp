@@ -1,8 +1,11 @@
+// Copyright 2026 Heath Stewart.
+// Licensed under the MIT License. See LICENSE.txt in the project root for license information.
+
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Path = System.IO.Path;
 
-namespace AzureSdk.SamplesMcp;
+namespace AzureSdk.SamplesMcp.Services;
 
 /// <summary>
 /// Basic file system operations used throughout the MCP server.

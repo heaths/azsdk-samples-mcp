@@ -1,3 +1,6 @@
+// Copyright 2026 Heath Stewart.
+// Licensed under the MIT License. See LICENSE.txt in the project root for license information.
+
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using AzureSdk.SamplesMcp.Services;
@@ -7,10 +10,16 @@ using Path = System.IO.Path;
 
 namespace AzureSdk.SamplesMcp.Providers;
 
+/// <summary>
+/// Provides dependency discovery and sample lookup for .NET projects.
+/// </summary>
 internal class Dotnet : IDependencyProvider
 {
     private string? _globalPackages;
 
+    /// <summary>
+    /// Determines whether the specified directory contains a .NET project file.
+    /// </summary>
     public bool HasProject(string directory, FileSystem? fileSystem = null)
     {
         fileSystem ??= FileSystem.Default;
@@ -19,12 +28,18 @@ internal class Dotnet : IDependencyProvider
         return projectFiles.Any();
     }
 
+    /// <summary>
+    /// Retrieves Azure SDK dependencies from the project using the .NET CLI.
+    /// </summary>
     public async Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = default, FileSystem? fileSystem = null)
     {
         IEnumerable<DotnetPackage> packages = await GetDependencyInfo(directory, processService, logger: logger).ConfigureAwait(false);
         return packages.Select(p => new Dependency(p.Id, p.ResolvedVersion));
     }
 
+    /// <summary>
+    /// Locates README files for Azure SDK packages referenced by the project.
+    /// </summary>
     public async Task<IEnumerable<string>> GetSamples(string directory, IEnumerable<Dependency> dependencies, IExternalProcessService processService, ILogger? logger = default, IEnvironment? environment = null, FileSystem? fileSystem = null)
     {
         environment ??= DefaultEnvironment.Default;
@@ -174,6 +189,9 @@ internal class Dotnet : IDependencyProvider
     }
 }
 
+/// <summary>
+/// Represents a resolved NuGet package with its identifier and version.
+/// </summary>
 internal record DotnetPackage(string Id, string ResolvedVersion)
 {
     // NuGet packages are stored in lowercase: {id}/{version}

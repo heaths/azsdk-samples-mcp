@@ -8,6 +8,16 @@ This file provides instructions for GitHub Copilot when working on the azsdk-sam
 - Ensure all code follows the project's formatting standards by running `dotnet format --severity warn`
 - Fix any formatting issues that the formatter reports but cannot automatically correct
 - Use structured logging with `ILogger` instead of `Console.WriteLine`
+- All C# source files must include a copyright header:
+
+  ```csharp
+  // Copyright {Year} Heath Stewart.
+  // Licensed under the MIT License. See LICENSE.txt in the project root for license information.
+  ```
+
+  Use the year when the source file was created.
+
+For project structure and common commands, see [AGENTS.md](../AGENTS.md).
 
 ## Repository Overview
 

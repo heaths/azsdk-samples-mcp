@@ -1,7 +1,9 @@
-using System.Text.Json;
-using AzureSdk.SamplesMcp.Services;
+// Copyright 2026 Heath Stewart.
+// Licensed under the MIT License. See LICENSE.txt in the project root for license information.
 
-namespace AzureSdk.SamplesMcp.Test.Services;
+using System.Text.Json;
+
+namespace AzureSdk.SamplesMcp.Services;
 
 internal class MockProcessService : IExternalProcessService
 {

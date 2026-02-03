@@ -2,6 +2,8 @@ $schema: https://raw.githubusercontent.com/DavidAnson/markdownlint-cli2/v0.20.0/
 gitignore: true
 globs:
   - "**/*.md"
+ignores:
+  - "tests/**/Content/**"
 config:
   first-line-h1: false
   line-length: false
