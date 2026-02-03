@@ -4,7 +4,7 @@ Write commit messages following the standard git commit convention with a short 
 
 ## Format
 
-```
+```text
 <short title describing the change>
 
 <more detailed description explaining why the change was made,
