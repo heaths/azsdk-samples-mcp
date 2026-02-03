@@ -42,13 +42,19 @@ jobs:
           # Update .csproj file
           sed -i "s/<Version>$VERSION<\/Version>/<Version>$NEW_VERSION<\/Version>/" src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj
 
-          # Create PR
+          # Create PR with context based on trigger
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            PR_BODY="Automated version bump (manually triggered)"
+          else
+            PR_BODY="Automated version bump after release workflow completed"
+          fi
+          
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -b version-bump-$NEW_VERSION
           git add src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj
           git commit -m "Bump version to $NEW_VERSION"
           git push origin version-bump-$NEW_VERSION
-          gh pr create --title "Bump version to $NEW_VERSION" --body "Automated version bump after release" --base main --head version-bump-$NEW_VERSION
+          gh pr create --title "Bump version to $NEW_VERSION" --body "$PR_BODY" --base main --head version-bump-$NEW_VERSION
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
