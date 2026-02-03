@@ -56,23 +56,32 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
+          # Use a consistent branch name variable
+          BRANCH_NAME="version-bump-$NEW_VERSION"
+          
           # Close any existing PR for this branch
-          EXISTING_PR=$(gh pr list --head version-bump-$NEW_VERSION --json number --jq '.[0].number' 2>/dev/null || echo "")
-          if [ -n "$EXISTING_PR" ]; then
+          echo "Checking for existing PR on branch $BRANCH_NAME..."
+          EXISTING_PR=$(gh pr list --head "$BRANCH_NAME" --json number --jq '.[0].number' 2>&1)
+          if [ $? -eq 0 ] && [ -n "$EXISTING_PR" ] && [ "$EXISTING_PR" != "null" ]; then
             echo "Closing existing PR #$EXISTING_PR"
             gh pr close "$EXISTING_PR" --comment "Closing to create a new PR with updated changes"
+          else
+            echo "No existing PR found or unable to check"
           fi
           
           # Delete the remote branch if it exists to avoid conflicts
-          if git ls-remote --heads origin version-bump-$NEW_VERSION | grep -q version-bump-$NEW_VERSION; then
-            echo "Deleting existing remote branch version-bump-$NEW_VERSION"
-            git push origin --delete version-bump-$NEW_VERSION
+          echo "Checking if remote branch $BRANCH_NAME exists..."
+          if git ls-remote --heads origin "$BRANCH_NAME" | grep -q "$BRANCH_NAME"; then
+            echo "Deleting existing remote branch $BRANCH_NAME"
+            git push origin --delete "$BRANCH_NAME"
+          else
+            echo "Remote branch does not exist"
           fi
           
-          git checkout -b version-bump-$NEW_VERSION
+          git checkout -b "$BRANCH_NAME"
           git add src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj
           git commit -m "Bump version to $NEW_VERSION"
-          git push origin version-bump-$NEW_VERSION
-          gh pr create --title "Bump version to $NEW_VERSION" --body "$PR_BODY" --base main --head version-bump-$NEW_VERSION
+          git push origin "$BRANCH_NAME"
+          gh pr create --title "Bump version to $NEW_VERSION" --body "$PR_BODY" --base main --head "$BRANCH_NAME"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
