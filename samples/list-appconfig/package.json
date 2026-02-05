@@ -1,0 +1,25 @@
+{
+  "name": "list-appconfig",
+  "version": "0.1.0",
+  "description": "Sample application that lists Azure App Configuration values",
+  "type": "module",
+  "bin": {
+    "list-appconfig": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "postbuild": "node build/postbuild.js"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@azure/app-configuration": "^1.11.0",
+    "@azure/identity": "^4.13.0"
+  },
+  "private": true
+}

@@ -62,32 +62,34 @@ When working with Azure SDKs, having access to relevant code examples can signif
 
 ### Building from Source (Optional)
 
-If you prefer to build locally:
+If you prefer to run locally from source:
 
-1. Clone and build:
+1. Clone the repository:
 
    ```bash
    git clone https://github.com/heaths/azsdk-samples-mcp.git
    cd azsdk-samples-mcp
-   dotnet build
    ```
 
-2. The binary will be at: `src/AzureSdk.SamplesMcp/bin/Debug/net10.0/AzureSdk.SamplesMcp`
-
-3. Update VS Code settings to reference the local binary. For example:
+2. Update VS Code settings to run from source:
 
    ```json
    {
      "azsdk-samples": {
-       "command": "/path/to/src/AzureSdk.SamplesMcp/bin/Debug/net10.0/AzureSdk.SamplesMcp",
-       "args": []
+       "command": "dotnet",
+       "args": [
+         "run",
+         "--project",
+         "/path/to/azsdk-samples-mcp/src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj",
+         "--"
+       ]
      }
    }
    ```
 
-   Replace the path with the actual location of your cloned repository.
+   Replace `/path/to/azsdk-samples-mcp` with the actual location of your cloned repository.
 
-4. Restart VS Code to load the MCP server
+3. Restart VS Code to load the MCP server
 
 ## Usage
 
@@ -96,6 +98,16 @@ Once integrated into your IDE:
 - Ask your AI assistant about Azure SDK samples relevant to your code
 - The assistant will have access to real examples from your dependencies
 - Get context-specific guidance on how to properly use Azure SDK APIs
+
+## Samples
+
+Example applications demonstrating how to use this MCP server:
+
+- [Download Azure Storage blob in .NET](samples/download-blob/README.md)
+- [List Azure App Configuration values in TypeScript](samples/list-appconfig/README.md)
+- [List Azure Key Vault secrets in Rust](samples/list-secrets/README.md)
+
+To provision Azure resources for running these samples, see [infra/README.md](infra/README.md).
 
 ## License
 

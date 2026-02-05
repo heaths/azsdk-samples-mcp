@@ -18,7 +18,7 @@ The repository contains a Model Context Protocol (MCP) server built in C# that p
 │   ├── Program.cs                    # Application entry point
 │   └── AzureSdk.SamplesMcp.csproj    # Project file
 ├── tests/AzureSdk.SamplesMcp.Test/   # Unit tests (.NET)
-├── tests/secrets/                    # Rust test utility
+├── samples/list-secrets/             # Rust sample utility
 │   ├── src/main.rs                   # Secrets sample using Azure SDK
 │   └── Cargo.toml                    # Rust project manifest
 └── .github/workflows/                # CI/CD workflows
@@ -36,14 +36,6 @@ dotnet build
 
 This builds both the `src/AzureSdk.SamplesMcp` project and the test suite in `tests/AzureSdk.SamplesMcp.Test`.
 
-### Rust Utilities
-
-Build the secrets test utility:
-
-```bash
-cargo build --manifest-path tests/secrets/Cargo.toml
-```
-
 ## Testing
 
 ### .NET Tests
@@ -54,21 +46,52 @@ Run unit tests from the repository root:
 dotnet test
 ```
 
+### Provisioning Azure Resources
+
+To provision Azure resources for testing the samples, see [infra/README.md](infra/README.md) for instructions on deploying Storage, App Configuration, and Key Vault resources using Azure Developer CLI.
+
+### MCP Server with .NET
+
+Test the MCP server using the .NET sample utility, which downloads a blob from Azure Blob Storage.
+See [samples/download-blob/README.md](samples/download-blob/README.md) for details on how to build and run the sample.
+
 ### MCP Server with Rust
 
-The MCP server can be tested interactively using the Rust `main.rs` utility, which demonstrates listing secrets from an Azure Key Vault:
+Test the MCP server using the Rust sample utility, which lists secrets from an Azure Key Vault.
+See [samples/list-secrets/README.md](samples/list-secrets/README.md) for details on how to build and run the sample.
 
-```bash
-cargo build --manifest-path tests/secrets/Cargo.toml
-./tests/secrets/target/debug/secrets https://your-vault.vault.azure.net/
-```
+### MCP Server with TypeScript
 
-Or with environment variable:
+Test the MCP server using the TypeScript sample utility, which lists configuration values from Azure App Configuration.
+See [samples/list-appconfig/README.md](samples/list-appconfig/README.md) for details on how to build and run the sample.
 
-```bash
-export AZURE_KEYVAULT_URL=https://your-vault.vault.azure.net/
-./tests/secrets/target/debug/secrets
-```
+### Running All Samples
+
+To run all samples with provisioned resources:
+
+1. **Provision Azure resources** interactively:
+
+   ```bash
+   azd provision
+   ```
+
+   Follow the prompts to select subscription, location, and other parameters.
+
+2. **Process all samples' comment prompts** using the MCP server configured in your AI assistant. For each sample, use the comment at the top of the source file as a prompt to implement the functionality using Azure SDK samples.
+
+3. **Run all the samples** using the provisioned resources:
+
+   ```bash
+   # .NET sample
+   dotnet run --project samples/download-blob/download-blob.csproj -- $(azd env get-value AZURE_STORAGE_BLOB_URL)
+
+   # Rust sample
+   cargo run --manifest-path samples/list-secrets/Cargo.toml -- $(azd env get-value AZURE_KEYVAULT_ENDPOINT)
+
+   # TypeScript sample (build first)
+   cd samples/list-appconfig && npm run build
+   npm exec list-appconfig -- $(azd env get-value AZURE_APPCONFIG_ENDPOINT)
+   ```
 
 ## Code Style and Formatting
 

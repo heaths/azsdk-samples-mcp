@@ -1,0 +1,27 @@
+name: azsdk-samples-mcp
+metadata:
+  template: azsdk-samples-mcp@0.1.0
+services: {}
+hooks:
+  postprovision:
+    posix:
+      shell: sh
+      run: |
+        az storage blob upload \
+          --account-name $AZURE_STORAGE_ACCOUNT_NAME \
+          --container-name examples \
+          --name README.md \
+          --file README.md \
+          --auth-mode login \
+          --overwrite
+    windows:
+      shell: pwsh
+      run: |
+        az storage blob upload `
+          --account-name $env:AZURE_STORAGE_ACCOUNT_NAME `
+          --container-name examples `
+          --name README.md `
+          --file README.md `
+          --auth-mode login `
+          --overwrite
+
