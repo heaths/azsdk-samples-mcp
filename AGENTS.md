@@ -146,6 +146,3 @@ ILogger logger = context.Services!.GetRequiredService<ILoggerFactory>()
 logger.LogDebug("Debug message {}", param);
 logger.LogInformation("Info message {}", param);
 ```
-
-[Copilot CLI]: https://github.com/features/copilot/cli/
-[VSCode]: https://code.visualstudio.com/

@@ -4,12 +4,26 @@
   "useGitignore": true,
   "ignorePaths": [
     ".vscode/",
-    "tests/**/Content/"
+    "infra/",
+    "tests/**/Content/",
+    ".cspell.json"
   ],
   "words": [
     "accessibilities",
+    "appconfig",
     "azsdk",
+    "postbuild",
+    "postprovision",
+    "pwsh",
     "rethrowing",
     "serde"
+  ],
+  "overrides": [
+    {
+      "filename": "**/tsconfig.json",
+      "words": [
+        "nodenext"
+      ]
+    }
   ]
 }
