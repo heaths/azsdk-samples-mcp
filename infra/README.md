@@ -4,7 +4,7 @@ This directory contains Azure Developer CLI (azd) infrastructure-as-code templat
 
 ## Resources Provisioned
 
-- **Storage Account** (`st<unique>`) - Contains an `examples` container with a sample `main.bicep` file for testing blob downloads
+- **Storage Account** (`st<unique>`) - Contains an `examples` container with a sample `README.md` file for testing blob downloads
 - **App Configuration** (`appconfig-<unique>`) - Contains two configuration values:
   - `greeting`: Plain text value "Hello, World!"
   - `settings`: JSON value `{"enabled":true,"timeout":30}`
