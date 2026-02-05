@@ -1,7 +1,7 @@
 {
-  "servers": {
+  "mcpServers": {
     "azsdk-samples": {
-      "type": "stdio",
+      "type": "local",
       "command": "dotnet",
       "args": [
         "run",
@@ -9,10 +9,12 @@
         "src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj",
         "--"
       ],
+      "tools": [
+        "*"
+      ],
       "env": {
         "LOGGING__LOGLEVEL__DEFAULT": "Debug"
       }
     }
-  },
-  "inputs": []
+  }
 }

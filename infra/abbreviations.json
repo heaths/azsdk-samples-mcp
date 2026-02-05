@@ -1,0 +1,6 @@
+{
+  "appConfigurationConfigurationStores": "appconfig-",
+  "keyVaultVaults": "kv-",
+  "resourcesResourceGroups": "rg-",
+  "storageStorageAccounts": "st"
+}
