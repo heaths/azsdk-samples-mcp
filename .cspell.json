@@ -3,6 +3,7 @@
   "version": "0.2",
   "useGitignore": true,
   "ignorePaths": [
+    ".devcontainer/",
     ".vscode/",
     "infra/",
     "tests/**/Content/",
