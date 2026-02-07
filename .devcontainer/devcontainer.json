@@ -1,0 +1,36 @@
+{
+  "name": "Azure SDK Samples MCP",
+  "image": "mcr.microsoft.com/devcontainers/dotnet:1-10.0-bookworm",
+  "features": {
+    "ghcr.io/azure/azure-dev/azd:latest": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "davidanson.vscode-markdownlint",
+        "editorconfig.editorconfig",
+        "ms-dotnettools.csdevkit",
+        "ms-dotnettools.vscode-dotnet-runtime",
+        "streetsidesoftware.code-spell-checker"
+      ],
+      "mcp": {
+        "servers": {
+          "azsdk-samples": {
+            "type": "stdio",
+            "command": "dotnet",
+            "args": [
+              "run",
+              "--project",
+              "src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj",
+              "--"
+            ],
+            "env": {
+              "LOGGING__LOGLEVEL__DEFAULT": "Debug"
+            }
+          }
+        }
+      }
+    }
+  },
+  "postCreateCommand": "dotnet restore"
+}
