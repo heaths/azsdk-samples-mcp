@@ -1,10 +1,6 @@
 # Azure SDK Samples MCP
 
-An MCP (Model Context Protocol) server that discovers and retrieves code samples from Azure SDK packages. This server provides AI agents and coding assistants with direct access to real-world examples from Azure SDK dependencies, helping developers use the Azure SDKs safely and effectively.
-
-## Overview
-
-When working with Azure SDKs, having access to relevant code examples can significantly improve development efficiency and reduce errors. This MCP server automatically discovers Azure SDK samples from your project's dependencies (NuGet, npm, Cargo) and makes them available to AI agents like GitHub Copilot.
+An MCP (Model Context Protocol) server that discovers and retrieves code samples from Azure SDK packages. When working with Azure SDKs, having access to relevant code examples can significantly improve development efficiency and reduce errors. This MCP server automatically discovers Azure SDK samples from your project's dependencies (NuGet, npm, Cargo) and makes them available to AI agents and coding assistants like GitHub Copilot.
 
 **Key features:**
 
@@ -19,9 +15,9 @@ When working with Azure SDKs, having access to relevant code examples can signif
 
 ## Installation
 
-### Quick Start
+### Install as a Global Tool
 
-1. **Authenticate with GitHub Packages** (required even for public packages):
+1. **Authenticate with GitHub Packages** (required only once even for public packages):
 
    First, create a [GitHub Personal Access Token (PAT)](https://github.com/settings/tokens/new) with `read:packages` scope.
 
@@ -39,57 +35,95 @@ When working with Azure SDKs, having access to relevant code examples can signif
 
    > **Note:** The `--store-password-in-clear-text` flag stores the token in plaintext in your NuGet configuration file. This is required because encrypted storage is not supported on all platforms. Keep your token secure and avoid committing NuGet configuration files to version control.
 
-2. Install the MCP server as a global tool:
+2. **Install the MCP server as a global tool:**
 
    ```bash
    dotnet tool install --global AzureSdk.SamplesMcp --add-source github-heaths --prerelease
    ```
 
-3. Add to VS Code settings (⌘, on macOS, Ctrl+, on Windows/Linux):
-   - Search for "MCP Servers" and find your AI extension settings
-   - Add this configuration:
+   > **Note for existing users:** If you previously installed this tool with the old command name (`AzureSdk.SamplesMcp`), you must uninstall it first:
+   >
+   > ```bash
+   > dotnet tool uninstall --global AzureSdk.SamplesMcp
+   > ```
+   >
+   > Then install the new version as shown above. The command name is now `azsdk-samples`.
 
-     ```json
-     {
-       "azsdk-samples": {
-         "command": "AzureSdk.SamplesMcp",
-         "args": []
-       }
-     }
-     ```
+### Clone the Repository (Optional)
 
-4. Restart VS Code to load the MCP server
+If you prefer to run from source or contribute to the project:
 
-### Building from Source (Optional)
+```bash
+git clone https://github.com/heaths/azsdk-samples-mcp.git
+cd azsdk-samples-mcp
+```
 
-If you prefer to run locally from source:
+You can automatically configured the server as described blow:
 
-1. Clone the repository:
+```bash
+dotnet run --project src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj -- config copilot
+```
 
-   ```bash
-   git clone https://github.com/heaths/azsdk-samples-mcp.git
-   cd azsdk-samples-mcp
-   ```
+Or just build it to configure it manually, also described below:
 
-2. Update VS Code settings to run from source:
+```bash
+dotnet build
+```
 
-   ```json
-   {
-     "azsdk-samples": {
-       "command": "dotnet",
-       "args": [
-         "run",
-         "--project",
-         "/path/to/azsdk-samples-mcp/src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj",
-         "--"
-       ]
-     }
-   }
-   ```
+## Configuration
 
-   Replace `/path/to/azsdk-samples-mcp` with the actual location of your cloned repository.
+### Automatic Configuration
 
-3. Restart VS Code to load the MCP server
+Use the `config` command to automatically generate MCP configuration files:
+
+```bash
+# Configure for GitHub Copilot (local - in repository)
+azsdk-samples config copilot
+
+# Configure for GitHub Copilot (global)
+azsdk-samples config copilot --global
+
+# Configure for VS Code (local only)
+azsdk-samples config vscode
+
+# Configure for Claude Code (local)
+azsdk-samples config claude
+
+# Configure for Claude Code (global)
+azsdk-samples config claude --global
+```
+
+This will create or update the appropriate configuration files:
+
+- **Copilot**: `.copilot/mcp-config.json` (local) or `~/.copilot/mcp-config.json` (global)
+- **VS Code**: `.vscode/mcp.json` (local only)
+- **Claude Code**: `.mcp.json` (local) or `~/.claude.json` (global)
+
+> **Note:** For global configurations, the command assumes you have the tool installed globally. For local configurations, it will find your repository root (by looking for `.git`) and create the config there.
+
+### Manual Configuration
+
+For more control or troubleshooting, you can manually configure the MCP server:
+
+- **Copilot**: See [Extend coding agent with MCP](https://docs.github.com/copilot/how-tos/use-copilot-agents/coding-agent/extend-coding-agent-with-mcp)
+- **VS Code**: See [Use MCP servers in Visual Studio Code](https://code.visualstudio.com/docs/copilot/customization/mcp-servers)
+- **Claude Code**: See [Model Context Protocol](https://code.claude.com/docs/en/mcp)
+
+#### Example: Manual VS Code Configuration
+
+Create or edit `.vscode/mcp.json` in your repository:
+
+```json
+{
+  "servers": {
+    "azsdk-samples": {
+      "type": "stdio",
+      "command": "azsdk-samples"
+    }
+  },
+  "inputs": []
+}
+```
 
 ## Usage
 
