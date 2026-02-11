@@ -3,9 +3,30 @@
   <PropertyGroup>
     <Version>0.3.0-preview.1</Version>
     <OutputType>Exe</OutputType>
+
     <IsPackable>true</IsPackable>
-    <PackAsTool>true</PackAsTool>
     <ToolCommandName>azsdk-samples</ToolCommandName>
+    <PackAsTool>true</PackAsTool>
+    <PackageType>McpServer</PackageType>
+    <SelfContained>true</SelfContained>
+    <PublishSelfContained>true</PublishSelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+
+    <Description>
+<![CDATA[
+  An MCP (Model Context Protocol) server that discovers and retrieves code samples from Azure SDK packages.
+  When working with Azure SDKs, having access to relevant code examples can significantly improve development efficiency and reduce errors.
+  This MCP server automatically discovers Azure SDK samples from your project's dependencies (NuGet, npm, Cargo)
+  and makes them available to AI agents and coding assistants like GitHub Copilot.
+]]>
+    </Description>
+    <PackageTags>AI; MCP; server; stdio</PackageTags>
+
+    <!-- MCP server.json properties -->
+    <McpServerName>io.github.heaths/azsdk-samples-mcp</McpServerName>
+    <McpServerDescription>Discovers and retrieves code samples from Azure SDK packages in .NET, Node.js, and Rust projects.</McpServerDescription>
+    <McpRepositoryUrl>https://github.com/heaths/azsdk-samples-mcp</McpRepositoryUrl>
+    <GeneratedServerJsonPath>$(IntermediateOutputPath)server.json</GeneratedServerJsonPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,5 +40,40 @@
   <ItemGroup>
     <Using Remove="System.IO" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(GeneratedServerJsonPath)" Pack="true" PackagePath="/.mcp/" />
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+  <Target Name="GenerateServerJson" BeforeTargets="GenerateNuspec">
+    <PropertyGroup>
+      <ServerJsonContent>
+<![CDATA[{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
+  "description": "$(McpServerDescription)",
+  "name": "$(McpServerName)",
+  "version": "$(Version)",
+  "packages": [
+    {
+      "registryType": "nuget",
+      "identifier": "$(PackageId)",
+      "version": "$(Version)",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [],
+      "environmentVariables": []
+    }
+  ],
+  "repository": {
+    "url": "$(McpRepositoryUrl)",
+    "source": "github"
+  }
+}]]>
+      </ServerJsonContent>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(GeneratedServerJsonPath)" Lines="$(ServerJsonContent)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+  </Target>
 
 </Project>
