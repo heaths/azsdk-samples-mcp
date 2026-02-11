@@ -41,6 +41,7 @@
 
   <ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <None Include="$(IntermediateOutputPath)server.json" Pack="true" PackagePath="/.mcp/" Visible="false" />
   </ItemGroup>
 
   <Target Name="GenerateServerJson" BeforeTargets="GenerateNuspec;Build">
@@ -73,7 +74,6 @@
     </PropertyGroup>
     <WriteLinesToFile File="$(GeneratedServerJsonPath)" Lines="$(ServerJsonContent)" Overwrite="true" WriteOnlyWhenDifferent="true" />
     <ItemGroup>
-      <None Include="$(GeneratedServerJsonPath)" Pack="true" PackagePath="/.mcp/" Visible="false" />
       <FileWrites Include="$(GeneratedServerJsonPath)" />
     </ItemGroup>
   </Target>

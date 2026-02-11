@@ -1,0 +1,66 @@
+name: pack
+
+on:
+  workflow_call:
+    inputs:
+      configuration:
+        description: Build configuration
+        type: string
+        default: Debug
+      attest:
+        description: Attest binary and package
+        type: boolean
+        default: false
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Restore
+        run: dotnet restore
+      - name: Define build outputs
+        id: outputs
+        run: |
+          echo "artifact_dir=${{ github.workspace }}/artifacts/output" >> "$GITHUB_OUTPUT"
+      - name: Build
+        run: >-
+          dotnet build
+          src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj
+          --configuration ${{ inputs.configuration }}
+          --no-restore
+          -p:OutputPath="${{ steps.outputs.outputs.artifact_dir }}"
+          -p:PublishDir="${{ steps.outputs.outputs.artifact_dir }}/publish/"
+          -p:IntermediateOutputPath="${{ steps.outputs.outputs.artifact_dir }}/obj/"
+      - name: Attest release binary
+        if: inputs.attest
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: "${{ steps.outputs.outputs.artifact_dir }}/AzureSdk.SamplesMcp.dll"
+      - name: Pack NuGet
+        run: >-
+          dotnet pack
+          src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj
+          --configuration ${{ inputs.configuration }}
+          --no-build
+          -p:NuGetPackOutput="${{ steps.outputs.outputs.artifact_dir }}"
+          -p:OutputPath="${{ steps.outputs.outputs.artifact_dir }}"
+          -p:PublishDir="${{ steps.outputs.outputs.artifact_dir }}/publish/"
+          -p:IntermediateOutputPath="${{ steps.outputs.outputs.artifact_dir }}/obj/"
+          -p:NoWarn=NU5104
+      - name: Attest NuGet package
+        if: inputs.attest
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: "${{ steps.outputs.outputs.artifact_dir }}/*.nupkg"
+      - name: Upload NuGet package
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-package
+          path: "${{ steps.outputs.outputs.artifact_dir }}/*.nupkg"
