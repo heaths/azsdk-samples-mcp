@@ -28,7 +28,12 @@ jobs:
         with:
           dotnet-version: 10.0.x
       - name: Create Release
-        run: gh release create ${{ github.ref_name }} --generate-notes
+        run: |
+          if [[ "${{ github.ref_name }}" == *-* ]]; then
+            gh release create ${{ github.ref_name }} --generate-notes --prerelease
+          else
+            gh release create ${{ github.ref_name }} --generate-notes
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Restore
@@ -38,16 +43,38 @@ jobs:
         run: |
           echo "artifact_dir=${{ github.workspace }}/artifacts/output" >> "$GITHUB_OUTPUT"
       - name: Build
-        run: dotnet build src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj --configuration Release --no-restore -p:OutputPath="${{ steps.outputs.outputs.artifact_dir }}"
+        run: >-
+          dotnet build
+            src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj
+            --configuration Release
+            --no-restore
+            -p:OutputPath="${{ steps.outputs.outputs.artifact_dir }}"
       - name: Attest release binary
         uses: actions/attest-build-provenance@v1
         with:
           subject-path: "${{ steps.outputs.outputs.artifact_dir }}/AzureSdk.SamplesMcp.dll"
       - name: Pack NuGet
-        run: dotnet pack src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj --configuration Release --no-build -p:OutputPath="${{ steps.outputs.outputs.artifact_dir }}" -p:PackageOutputPath="${{ steps.outputs.outputs.artifact_dir }}" /p:NoWarn=NU5104
+        run: >-
+          dotnet pack
+            src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj
+            --configuration Release
+            --no-build
+            -p:OutputPath="${{ steps.outputs.outputs.artifact_dir }}"
+            -p:PackageOutputPath="${{ steps.outputs.outputs.artifact_dir }}"
+            /p:NoWarn=NU5104
       - name: Attest NuGet package
         uses: actions/attest-build-provenance@v1
         with:
           subject-path: "${{ steps.outputs.outputs.artifact_dir }}/*.nupkg"
-      - name: Publish NuGet
-        run: dotnet nuget push "${{ steps.outputs.outputs.artifact_dir }}/*.nupkg" --source "https://nuget.pkg.github.com/heaths/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+      - name: Log into NuGet.org
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: heaths
+      - name: Publish to NuGet.org
+        run: >-
+          dotnet nuget push
+            "${{ steps.outputs.outputs.artifact_dir }}/*.nupkg"
+            --api-key ${{ steps.login.outputs.NUGET_API_KEY }}
+            --source https://api.nuget.org/v3/index.json
+            --skip-duplicate

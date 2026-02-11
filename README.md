@@ -1,4 +1,9 @@
-# Azure SDK Samples MCP
+# Azure SDK Samples MCP (Unofficial)
+
+<!-- mcp-name: io.github.heaths/azsdk-samples-mcp -->
+
+[![release](https://img.shields.io/github/v/release/heaths/azsdk-samples-mcp.svg?logo=github&include_prereleases)](https://github.com/heaths/azsdk-samples-mcp/releases/latest)
+[![ci](https://github.com/heaths/azsdk-samples-mcp/actions/workflows/ci.yml/badge.svg?event=push)](https://github.com/heaths/azsdk-samples-mcp/actions/workflows/ci.yml)
 
 An MCP (Model Context Protocol) server that discovers and retrieves code samples from Azure SDK packages. When working with Azure SDKs, having access to relevant code examples can significantly improve development efficiency and reduce errors. This MCP server automatically discovers Azure SDK samples from your project's dependencies (NuGet, npm, Cargo) and makes them available to AI agents and coding assistants like GitHub Copilot.
 
@@ -17,37 +22,11 @@ An MCP (Model Context Protocol) server that discovers and retrieves code samples
 
 ### Install as a Global Tool
 
-1. **Authenticate with GitHub Packages** (required only once even for public packages):
+Install the MCP server as a global .NET tool from nuget.org:
 
-   First, create a [GitHub Personal Access Token (PAT)](https://github.com/settings/tokens/new) with `read:packages` scope.
-
-   Then, configure the NuGet source with your GitHub username and token:
-
-   ```bash
-   dotnet nuget add source "https://nuget.pkg.github.com/heaths/index.json" \
-     --name github-heaths \
-     --username YOUR_GITHUB_USERNAME \
-     --password YOUR_GITHUB_TOKEN \
-     --store-password-in-clear-text
-   ```
-
-   Replace `YOUR_GITHUB_USERNAME` with your GitHub username (without quotes) and `YOUR_GITHUB_TOKEN` with your PAT (without quotes).
-
-   > **Note:** The `--store-password-in-clear-text` flag stores the token in plaintext in your NuGet configuration file. This is required because encrypted storage is not supported on all platforms. Keep your token secure and avoid committing NuGet configuration files to version control.
-
-2. **Install the MCP server as a global tool:**
-
-   ```bash
-   dotnet tool install --global AzureSdk.SamplesMcp --add-source github-heaths --prerelease
-   ```
-
-   > **Note for existing users:** If you previously installed this tool with the old command name (`AzureSdk.SamplesMcp`), you must uninstall it first:
-   >
-   > ```bash
-   > dotnet tool uninstall --global AzureSdk.SamplesMcp
-   > ```
-   >
-   > Then install the new version as shown above. The command name is now `azsdk-samples`.
+```bash
+dotnet tool install --global AzureSdk.SamplesMcp --prerelease
+```
 
 ### Clone the Repository (Optional)
 
