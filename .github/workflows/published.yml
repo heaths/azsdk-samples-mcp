@@ -81,13 +81,16 @@ jobs:
           
           # Create PR and capture the number directly from the output
           PR_URL=$(gh pr create --title "Bump version to $NEW_VERSION" --body "$PR_BODY" --base main --head "$BRANCH_NAME")
-          PR_NUMBER=$(echo "$PR_URL" | grep -oP '\d+$')
+          PR_NUMBER=$(echo "$PR_URL" | sed -n 's/.*\/\([0-9]*\)$/\1/p')
           
           # Enable auto-merge on the created PR
           if [ -n "$PR_NUMBER" ]; then
             echo "Enabling auto-merge for PR #$PR_NUMBER"
-            if ! gh pr merge "$PR_NUMBER" --auto --squash 2>&1; then
+            MERGE_OUTPUT=$(gh pr merge "$PR_NUMBER" --auto --squash 2>&1)
+            MERGE_EXIT_CODE=$?
+            if [ $MERGE_EXIT_CODE -ne 0 ]; then
               echo "Note: Auto-merge could not be enabled. This may be expected if the repository requires approvals or has other branch protection settings."
+              echo "Error details: $MERGE_OUTPUT"
             fi
           else
             echo "Warning: Failed to retrieve PR number from output: $PR_URL"
