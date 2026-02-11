@@ -78,15 +78,19 @@ jobs:
           git add src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj
           git commit -m "Bump version to $NEW_VERSION"
           git push origin "$BRANCH_NAME"
-          gh pr create --title "Bump version to $NEW_VERSION" --body "$PR_BODY" --base main --head "$BRANCH_NAME"
+          
+          # Create PR and capture the number directly from the output
+          PR_URL=$(gh pr create --title "Bump version to $NEW_VERSION" --body "$PR_BODY" --base main --head "$BRANCH_NAME")
+          PR_NUMBER=$(echo "$PR_URL" | grep -oP '\d+$')
           
           # Enable auto-merge on the created PR
-          PR_NUMBER=$(gh pr list --head "$BRANCH_NAME" --json number --jq '.[0].number')
-          if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
+          if [ -n "$PR_NUMBER" ]; then
             echo "Enabling auto-merge for PR #$PR_NUMBER"
-            gh pr merge "$PR_NUMBER" --auto --squash || echo "Failed to enable auto-merge (may require repository settings)"
+            if ! gh pr merge "$PR_NUMBER" --auto --squash 2>&1; then
+              echo "Note: Auto-merge could not be enabled. This may be expected if the repository requires approvals or has other branch protection settings."
+            fi
           else
-            echo "Failed to retrieve PR number, skipping auto-merge"
+            echo "Warning: Failed to retrieve PR number from output: $PR_URL"
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
