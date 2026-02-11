@@ -52,3 +52,8 @@ jobs:
         with:
           config: .markdownlint-cli2.yaml
           fix: false
+
+  pack:
+    uses: ./.github/workflows/pack.yml
+    with:
+      configuration: ${{ inputs.configuration || 'Debug' }}
