@@ -13,6 +13,7 @@
     "accessibilities",
     "appconfig",
     "azsdk",
+    "binlog",
     "postbuild",
     "postprovision",
     "pwsh",
