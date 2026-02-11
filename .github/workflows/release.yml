@@ -12,6 +12,10 @@ jobs:
       configuration: Release
 
   pack:
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
     uses: ./.github/workflows/pack.yml
     needs: test
     with:

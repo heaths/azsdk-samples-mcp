@@ -11,24 +11,12 @@ on:
         description: Attest binary and package
         type: boolean
         default: false
-  workflow_dispatch:
-    inputs:
-      configuration:
-        description: Build configuration
-        type: string
-        default: Debug
-      attest:
-        description: Attest binary and package
-        type: boolean
-        default: false
 
 jobs:
   pack:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write
-      attestations: write
     steps:
       - uses: actions/checkout@v4
       - name: Setup
