@@ -82,6 +82,11 @@ jobs:
           
           # Enable auto-merge on the created PR
           PR_NUMBER=$(gh pr list --head "$BRANCH_NAME" --json number --jq '.[0].number')
-          gh pr merge "$PR_NUMBER" --auto --squash
+          if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
+            echo "Enabling auto-merge for PR #$PR_NUMBER"
+            gh pr merge "$PR_NUMBER" --auto --squash || echo "Failed to enable auto-merge (may require repository settings)"
+          else
+            echo "Failed to retrieve PR number, skipping auto-merge"
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
