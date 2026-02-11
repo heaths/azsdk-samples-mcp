@@ -42,7 +42,7 @@
 
   <ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="" />
-    <None Include="$(IntermediateOutputPath)server.json" Pack="true" PackagePath="/.mcp/" Visible="false" />
+    <None Include="$(IntermediateOutputPath)server.json" Pack="true" PackagePath=".mcp/" Visible="false" />
   </ItemGroup>
 
   <Target Name="GenerateServerJson" BeforeTargets="GenerateNuspec;Build">
