@@ -81,19 +81,25 @@ jobs:
           
           # Create PR and capture the number directly from the output
           PR_URL=$(gh pr create --title "Bump version to $NEW_VERSION" --body "$PR_BODY" --base main --head "$BRANCH_NAME")
-          PR_NUMBER=$(echo "$PR_URL" | sed -n 's/.*\/\([0-9]*\)$/\1/p' | tr -d '[:space:]')
+          CREATE_EXIT_CODE=$?
           
-          # Enable auto-merge on the created PR
-          if [ -n "$PR_NUMBER" ]; then
-            echo "Enabling auto-merge for PR #$PR_NUMBER"
-            MERGE_OUTPUT=$(gh pr merge "$PR_NUMBER" --auto --squash 2>&1)
-            MERGE_EXIT_CODE=$?
-            if [ "$MERGE_EXIT_CODE" -ne 0 ]; then
-              echo "Note: Auto-merge could not be enabled. This may be due to branch protection requirements, failing checks, merge conflicts, or permission issues."
-              echo "Error details: $MERGE_OUTPUT"
+          if [ "$CREATE_EXIT_CODE" -eq 0 ]; then
+            PR_NUMBER=$(echo "$PR_URL" | sed -n 's/.*\/\([0-9]*\)$/\1/p' | tr -d '[:space:]')
+            
+            # Enable auto-merge on the created PR
+            if [ -n "$PR_NUMBER" ]; then
+              echo "Enabling auto-merge for PR #$PR_NUMBER"
+              MERGE_OUTPUT=$(gh pr merge "$PR_NUMBER" --auto --squash 2>&1)
+              MERGE_EXIT_CODE=$?
+              if [ "$MERGE_EXIT_CODE" -ne 0 ]; then
+                echo "Note: Auto-merge could not be enabled. This may be due to branch protection requirements, failing checks, merge conflicts, or permission issues."
+                echo "Error details: $MERGE_OUTPUT"
+              fi
+            else
+              echo "Warning: Failed to retrieve PR number from output: $PR_URL"
             fi
           else
-            echo "Warning: Failed to retrieve PR number from output: $PR_URL"
+            echo "Error: Failed to create PR"
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
