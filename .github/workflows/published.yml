@@ -79,5 +79,9 @@ jobs:
           git commit -m "Bump version to $NEW_VERSION"
           git push origin "$BRANCH_NAME"
           gh pr create --title "Bump version to $NEW_VERSION" --body "$PR_BODY" --base main --head "$BRANCH_NAME"
+          
+          # Enable auto-merge on the created PR
+          PR_NUMBER=$(gh pr list --head "$BRANCH_NAME" --json number --jq '.[0].number')
+          gh pr merge "$PR_NUMBER" --auto --squash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
