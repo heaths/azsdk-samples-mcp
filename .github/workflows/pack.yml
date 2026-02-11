@@ -34,6 +34,7 @@ jobs:
           -p:OutputPath="${{ steps.outputs.outputs.artifact_dir }}"
           -p:PublishDir="${{ steps.outputs.outputs.artifact_dir }}/publish/"
           -p:IntermediateOutputPath="${{ steps.outputs.outputs.artifact_dir }}/obj/"
+          -p:ContinuousIntegrationBuild=true
       - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
@@ -50,6 +51,7 @@ jobs:
           -p:PublishDir="${{ steps.outputs.outputs.artifact_dir }}/publish/"
           -p:IntermediateOutputPath="${{ steps.outputs.outputs.artifact_dir }}/obj/"
           -p:NoWarn=NU5104
+          -p:ContinuousIntegrationBuild=true
       - name: Upload NuGet package
         uses: actions/upload-artifact@v4
         with:
