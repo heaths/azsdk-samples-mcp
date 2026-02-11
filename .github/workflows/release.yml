@@ -59,8 +59,9 @@ jobs:
           src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj
           --configuration Release
           --no-build
+          -p:NuGetPackOutput="${{ steps.outputs.outputs.artifact_dir }}"
           -p:OutputPath="${{ steps.outputs.outputs.artifact_dir }}"
-          -p:PackageOutputPath="${{ steps.outputs.outputs.artifact_dir }}"
+          -p:PublishDir="${{ steps.outputs.outputs.artifact_dir }}/publish/"
           /p:NoWarn=NU5104
       - name: Attest NuGet package
         uses: actions/attest-build-provenance@v1
@@ -74,7 +75,7 @@ jobs:
       - name: Publish to NuGet.org
         run: >-
           dotnet nuget push
-          "${{ steps.outputs.outputs.artifact_dir }}/*.nupkg"
+          "${{ steps.outputs.outputs.artifact_dir }}/publish/*.nupkg"
           --api-key ${{ steps.login.outputs.NUGET_API_KEY }}
           --source https://api.nuget.org/v3/index.json
           --skip-duplicate

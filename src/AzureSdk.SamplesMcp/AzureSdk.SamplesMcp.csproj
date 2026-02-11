@@ -22,11 +22,9 @@
     </Description>
     <PackageTags>AI; MCP; server; stdio</PackageTags>
 
-    <!-- MCP server.json properties -->
     <McpServerName>io.github.heaths/azsdk-samples-mcp</McpServerName>
     <McpServerDescription>Discovers and retrieves code samples from Azure SDK packages in .NET, Node.js, and Rust projects.</McpServerDescription>
     <McpRepositoryUrl>https://github.com/heaths/azsdk-samples-mcp</McpRepositoryUrl>
-    <GeneratedServerJsonPath>$(IntermediateOutputPath)server.json</GeneratedServerJsonPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -42,12 +40,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="$(GeneratedServerJsonPath)" Pack="true" PackagePath="/.mcp/" />
     <None Include="../../README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
 
-  <Target Name="GenerateServerJson" BeforeTargets="GenerateNuspec">
+  <Target Name="GenerateServerJson" BeforeTargets="GenerateNuspec;Build">
     <PropertyGroup>
+      <GeneratedServerJsonPath>$(IntermediateOutputPath)server.json</GeneratedServerJsonPath>
       <ServerJsonContent>
 <![CDATA[{
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
@@ -74,6 +72,10 @@
       </ServerJsonContent>
     </PropertyGroup>
     <WriteLinesToFile File="$(GeneratedServerJsonPath)" Lines="$(ServerJsonContent)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <ItemGroup>
+      <None Include="$(GeneratedServerJsonPath)" Pack="true" PackagePath="/.mcp/" Visible="false" />
+      <FileWrites Include="$(GeneratedServerJsonPath)" />
+    </ItemGroup>
   </Target>
 
 </Project>
