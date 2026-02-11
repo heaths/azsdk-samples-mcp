@@ -13,10 +13,12 @@ on:
         default: false
 
 jobs:
-  pack:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    outputs:
+      artifact_dir: ${{ steps.outputs.outputs.artifact_dir }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup
@@ -38,29 +40,78 @@ jobs:
           -p:OutputPath="${{ steps.outputs.outputs.artifact_dir }}"
           -p:PublishDir="${{ steps.outputs.outputs.artifact_dir }}/publish/"
           -p:IntermediateOutputPath="${{ steps.outputs.outputs.artifact_dir }}/obj/"
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: ${{ steps.outputs.outputs.artifact_dir }}
+
+  attest-binaries:
+    if: inputs.attest
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      id-token: write
+      attestations: write
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: ./artifacts/output
       - name: Attest release binary
-        if: inputs.attest
         uses: actions/attest-build-provenance@v1
         with:
-          subject-path: "${{ steps.outputs.outputs.artifact_dir }}/AzureSdk.SamplesMcp.dll"
+          subject-path: ./artifacts/output/AzureSdk.SamplesMcp.dll
+
+  pack:
+    if: ${{ !failure() && !cancelled() }}
+    runs-on: ubuntu-latest
+    needs: [build, attest-binaries]
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: ./artifacts/output
       - name: Pack NuGet
         run: >-
           dotnet pack
           src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj
           --configuration ${{ inputs.configuration }}
           --no-build
-          -p:NuGetPackOutput="${{ steps.outputs.outputs.artifact_dir }}"
-          -p:OutputPath="${{ steps.outputs.outputs.artifact_dir }}"
-          -p:PublishDir="${{ steps.outputs.outputs.artifact_dir }}/publish/"
-          -p:IntermediateOutputPath="${{ steps.outputs.outputs.artifact_dir }}/obj/"
+          -p:NuGetPackOutput="./artifacts/output"
+          -p:OutputPath="./artifacts/output"
+          -p:PublishDir="./artifacts/output/publish/"
+          -p:IntermediateOutputPath="./artifacts/output/obj/"
           -p:NoWarn=NU5104
-      - name: Attest NuGet package
-        if: inputs.attest
-        uses: actions/attest-build-provenance@v1
-        with:
-          subject-path: "${{ steps.outputs.outputs.artifact_dir }}/*.nupkg"
       - name: Upload NuGet package
         uses: actions/upload-artifact@v4
         with:
           name: nuget-package
-          path: "${{ steps.outputs.outputs.artifact_dir }}/*.nupkg"
+          path: ./artifacts/output/*.nupkg
+
+  attest-package:
+    if: ${{ inputs.attest && !failure() && !cancelled() }}
+    runs-on: ubuntu-latest
+    needs: pack
+    permissions:
+      id-token: write
+      attestations: write
+    steps:
+      - name: Download NuGet package
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-package
+          path: ./artifacts
+      - name: Attest NuGet package
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: ./artifacts/*.nupkg
