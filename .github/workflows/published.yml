@@ -92,8 +92,8 @@ jobs:
               MERGE_OUTPUT=$(gh pr merge "$PR_NUMBER" --auto --squash 2>&1)
               MERGE_EXIT_CODE=$?
               if [ "$MERGE_EXIT_CODE" -ne 0 ]; then
-                echo "Note: Auto-merge could not be enabled. This may be due to branch protection requirements, failing checks, merge conflicts, or permission issues."
                 echo "Error details: $MERGE_OUTPUT"
+                echo "Note: Auto-merge could not be enabled. This may be due to branch protection requirements, failing checks, merge conflicts, or permission issues."
               fi
             else
               echo "Warning: Failed to retrieve PR number from output: $PR_URL"
