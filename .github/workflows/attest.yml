@@ -1,0 +1,35 @@
+name: attest
+
+on:
+  workflow_call:
+    inputs:
+      configuration:
+        description: Build configuration
+        type: string
+        default: Debug
+
+jobs:
+  attest:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      attestations: write
+    steps:
+      - name: Download binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: build-binaries
+          path: ./artifacts/binaries
+      - name: Download NuGet package
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-package
+          path: ./artifacts/package
+      - name: Attest binaries
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: ./artifacts/binaries/AzureSdk.SamplesMcp.dll
+      - name: Attest NuGet package
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: ./artifacts/package/*.nupkg

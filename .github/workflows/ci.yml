@@ -13,6 +13,10 @@ on:
         description: Build configuration
         type: string
         default: Debug
+      release:
+        description: Skip pack job for release workflow
+        type: boolean
+        default: false
 
 jobs:
   test:
@@ -54,6 +58,7 @@ jobs:
           fix: false
 
   pack:
+    if: ${{ !inputs.release }}
     permissions:
       contents: read
     uses: ./.github/workflows/pack.yml

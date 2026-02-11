@@ -7,10 +7,6 @@ on:
         description: Build configuration
         type: string
         default: Debug
-      attest:
-        description: Attest binary and package
-        type: boolean
-        default: false
 
 jobs:
   pack:
@@ -38,11 +34,11 @@ jobs:
           -p:OutputPath="${{ steps.outputs.outputs.artifact_dir }}"
           -p:PublishDir="${{ steps.outputs.outputs.artifact_dir }}/publish/"
           -p:IntermediateOutputPath="${{ steps.outputs.outputs.artifact_dir }}/obj/"
-      - name: Attest release binary
-        if: inputs.attest
-        uses: actions/attest-build-provenance@v1
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
         with:
-          subject-path: "${{ steps.outputs.outputs.artifact_dir }}/AzureSdk.SamplesMcp.dll"
+          name: build-binaries
+          path: ${{ steps.outputs.outputs.artifact_dir }}/AzureSdk.SamplesMcp.dll
       - name: Pack NuGet
         run: >-
           dotnet pack
@@ -54,11 +50,6 @@ jobs:
           -p:PublishDir="${{ steps.outputs.outputs.artifact_dir }}/publish/"
           -p:IntermediateOutputPath="${{ steps.outputs.outputs.artifact_dir }}/obj/"
           -p:NoWarn=NU5104
-      - name: Attest NuGet package
-        if: inputs.attest
-        uses: actions/attest-build-provenance@v1
-        with:
-          subject-path: "${{ steps.outputs.outputs.artifact_dir }}/*.nupkg"
       - name: Upload NuGet package
         uses: actions/upload-artifact@v4
         with:
