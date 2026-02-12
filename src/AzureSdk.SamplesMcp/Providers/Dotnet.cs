@@ -235,10 +235,10 @@ internal class Dotnet : IDependencyProvider
         try
         {
             var nuspecContent = fileSystem.ReadAllText(nuspecPath);
-            var doc = System.Xml.Linq.XDocument.Parse(nuspecContent);
+            var doc = XDocument.Parse(nuspecContent);
 
             // The nuspec file uses XML namespace
-            var ns = doc.Root?.GetDefaultNamespace() ?? System.Xml.Linq.XNamespace.None;
+            var ns = doc.Root?.GetDefaultNamespace() ?? XNamespace.None;
             var descriptionElement = doc.Root?
                 .Element(ns + "metadata")?
                 .Element(ns + "description");
