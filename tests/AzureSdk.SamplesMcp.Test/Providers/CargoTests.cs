@@ -184,4 +184,92 @@ public class CargoTests
         // Assert
         Assert.HasCount(0, dependencyList);
     }
+
+    [TestMethod]
+    public async Task GetDependencies_IncludesDescriptions_WhenRequested()
+    {
+        // Arrange
+        var fileSystem = CreateFileSystem();
+        var cargo = new Cargo();
+        var directory = "cargo-project";
+
+        // Set CARGO_HOME to point to test data
+        System.Environment.SetEnvironmentVariable("CARGO_HOME", ".cargo");
+
+        // Mock cargo metadata output
+        var mockMetadata = """
+        {
+          "packages": [
+            {
+              "name": "azure_core",
+              "version": "0.31.0",
+              "id": "azure_core 0.31.0 (registry+https://github.com/rust-lang/crates.io-index)"
+            }
+          ],
+          "workspace_members": [],
+          "resolve": null,
+          "target_directory": "/test/target",
+          "version": 1,
+          "workspace_root": "/test"
+        }
+        """;
+
+        var processService = new MockProcessService(mockMetadata);
+
+        try
+        {
+            // Act
+            var dependencies = await cargo.GetDependencies(directory, processService, fileSystem: fileSystem, includeDescriptions: true);
+            var dependencyList = dependencies.ToList();
+
+            // Assert
+            Assert.HasCount(1, dependencyList);
+            Assert.AreEqual("azure_core", dependencyList[0].Name);
+            Assert.AreEqual("0.31.0", dependencyList[0].Version);
+            Assert.AreEqual("Core library for Azure SDK for Rust", dependencyList[0].Description);
+        }
+        finally
+        {
+            System.Environment.SetEnvironmentVariable("CARGO_HOME", null);
+        }
+    }
+
+    [TestMethod]
+    public async Task GetDependencies_ExcludesDescriptions_WhenNotRequested()
+    {
+        // Arrange
+        var fileSystem = CreateFileSystem();
+        var cargo = new Cargo();
+        var directory = "cargo-project";
+
+        // Mock cargo metadata output
+        var mockMetadata = """
+        {
+          "packages": [
+            {
+              "name": "azure_core",
+              "version": "0.31.0",
+              "id": "azure_core 0.31.0 (registry+https://github.com/rust-lang/crates.io-index)"
+            }
+          ],
+          "workspace_members": [],
+          "resolve": null,
+          "target_directory": "/test/target",
+          "version": 1,
+          "workspace_root": "/test"
+        }
+        """;
+
+        var processService = new MockProcessService(mockMetadata);
+
+        // Act
+        var dependencies = await cargo.GetDependencies(directory, processService, fileSystem: fileSystem, includeDescriptions: false);
+        var dependencyList = dependencies.ToList();
+
+        // Assert
+        Assert.HasCount(1, dependencyList);
+        Assert.AreEqual("azure_core", dependencyList[0].Name);
+        Assert.AreEqual("0.31.0", dependencyList[0].Version);
+        Assert.IsNull(dependencyList[0].Description);
+    }
 }

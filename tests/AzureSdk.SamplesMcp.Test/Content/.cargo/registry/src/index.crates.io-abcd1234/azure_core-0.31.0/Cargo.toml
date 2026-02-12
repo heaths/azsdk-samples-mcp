@@ -1,0 +1,5 @@
+[package]
+name = "azure_core"
+version = "0.31.0"
+publish = false
+description = "Core library for Azure SDK for Rust"
