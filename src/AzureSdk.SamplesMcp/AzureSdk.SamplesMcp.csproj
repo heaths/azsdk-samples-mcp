@@ -21,6 +21,7 @@
 ]]>
     </Description>
     <PackageTags>AI; MCP; server; stdio</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
 
     <McpServerName>io.github.heaths/azsdk-samples-mcp</McpServerName>
     <McpServerDescription>Discovers and retrieves code samples from Azure SDK packages in .NET, Node.js, and Rust projects.</McpServerDescription>
@@ -40,8 +41,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="../../README.md" Pack="true" PackagePath="/" />
-    <None Include="$(IntermediateOutputPath)server.json" Pack="true" PackagePath="/.mcp/" Visible="false" />
+    <None Include="../../README.md" Pack="true" PackagePath="" />
+    <None Include="$(IntermediateOutputPath)server.json" Pack="true" PackagePath=".mcp/" Visible="false" />
   </ItemGroup>
 
   <Target Name="GenerateServerJson" BeforeTargets="GenerateNuspec;Build">
