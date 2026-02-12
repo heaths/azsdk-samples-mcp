@@ -224,7 +224,7 @@ internal class Cargo : IDependencyProvider
                     descObj is string description)
                 {
                     // Handle multiline descriptions by trimming and joining lines
-                    var lines = description.Split('\n')
+                    var lines = description.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)
                         .Select(line => line.Trim())
                         .Where(line => !string.IsNullOrWhiteSpace(line));
                     return string.Join(" ", lines);
