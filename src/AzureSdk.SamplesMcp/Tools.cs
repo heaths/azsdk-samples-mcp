@@ -44,7 +44,7 @@ public static class Tools
             return [];
         logger.LogDebug("Found provider {} for directory {}", provider.GetType().Name, directory);
         IEnumerable<Dependency> dependencies = await provider.GetDependencies(directory, processService, logger, fileSystem, includeDescriptions: true);
-        return dependencies.Select(d => 
+        return dependencies.Select(d =>
         {
             if (string.IsNullOrWhiteSpace(d.Description))
             {

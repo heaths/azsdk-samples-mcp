@@ -34,21 +34,21 @@ internal class Cargo : IDependencyProvider
         fileSystem ??= FileSystem.Default;
         var manifestPath = Path.Combine(directory, "Cargo.toml");
         IEnumerable<Crate> crates = await GetDependencyInfo(manifestPath, processService, logger: logger, fileSystem: fileSystem).ConfigureAwait(false);
-        
+
         if (!includeDescriptions)
         {
             return crates.Select(c => new Dependency(c.Name, c.Version));
         }
-        
+
         // Read descriptions from each crate's manifest in the cargo cache
         var dependencies = new List<Dependency>();
-        
+
         foreach (var crate in crates)
         {
             string? description = await GetCrateDescriptionFromCache(crate, fileSystem, logger).ConfigureAwait(false);
             dependencies.Add(new Dependency(crate.Name, crate.Version, description));
         }
-        
+
         return dependencies;
     }
 
@@ -216,7 +216,7 @@ internal class Cargo : IDependencyProvider
             {
                 var tomlContent = fileSystem.ReadAllText(manifestPath);
                 var tomlModel = Tomlyn.Toml.ToModel(tomlContent);
-                
+
                 if (tomlModel is Tomlyn.Model.TomlTable table &&
                     table.TryGetValue("package", out var packageObj) &&
                     packageObj is Tomlyn.Model.TomlTable package &&
@@ -235,7 +235,7 @@ internal class Cargo : IDependencyProvider
                 logger?.LogDebug("Failed to read description from {}: {}", manifestPath, ex.Message);
             }
         }
-        
+
         return null;
     }
 }

@@ -168,13 +168,13 @@ internal class Node : IDependencyProvider
             if (NodePackage.TryCreate(name, version, out NodePackage? package))
             {
                 logger?.LogDebug("Adding dependency {}@{}", name, version);
-                
+
                 string? description = null;
                 if (includeDescriptions)
                 {
                     description = GetPackageDescription(directory, package, fileSystem, logger);
                 }
-                
+
                 dependencies.Add(new Dependency(package.Name, package.Version, description));
             }
         }
@@ -185,7 +185,7 @@ internal class Node : IDependencyProvider
     private static string? GetPackageDescription(string directory, NodePackage package, FileSystem fileSystem, ILogger? logger)
     {
         var packageJsonPath = Path.Combine(directory, "node_modules", package.Name, "package.json");
-        
+
         if (!fileSystem.FileExists(packageJsonPath))
         {
             logger?.LogDebug("package.json not found at {}", packageJsonPath);
@@ -196,7 +196,7 @@ internal class Node : IDependencyProvider
         {
             var packageJsonContent = fileSystem.ReadAllText(packageJsonPath);
             using var doc = JsonDocument.Parse(packageJsonContent);
-            
+
             if (doc.RootElement.TryGetProperty("description", out var descElement))
             {
                 return descElement.GetString();
@@ -206,7 +206,7 @@ internal class Node : IDependencyProvider
         {
             logger?.LogDebug("Failed to read description from {}: {}", packageJsonPath, ex.Message);
         }
-        
+
         return null;
     }
 }
