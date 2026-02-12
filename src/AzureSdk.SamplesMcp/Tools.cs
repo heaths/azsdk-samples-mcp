@@ -43,8 +43,15 @@ public static class Tools
         if (result is not ({ } directory, { } provider))
             return [];
         logger.LogDebug("Found provider {} for directory {}", provider.GetType().Name, directory);
-        IEnumerable<Dependency> dependencies = await provider.GetDependencies(directory, processService, logger);
-        return dependencies.Select(d => d.Name);
+        IEnumerable<Dependency> dependencies = await provider.GetDependencies(directory, processService, logger, fileSystem, includeDescriptions: true);
+        return dependencies.Select(d => 
+        {
+            if (string.IsNullOrWhiteSpace(d.Description))
+            {
+                return d.Name;
+            }
+            return $"{d.Name}: {d.Description}";
+        });
     }
 
     [McpServerTool(Name = "samples")]

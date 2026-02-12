@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Xml.Linq;
 using AzureSdk.SamplesMcp.Services;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol;
@@ -31,10 +32,26 @@ internal class Dotnet : IDependencyProvider
     /// <summary>
     /// Retrieves Azure SDK dependencies from the project using the .NET CLI.
     /// </summary>
-    public async Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = default, FileSystem? fileSystem = null)
+    public async Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = default, FileSystem? fileSystem = null, bool includeDescriptions = false)
     {
+        fileSystem ??= FileSystem.Default;
         IEnumerable<DotnetPackage> packages = await GetDependencyInfo(directory, processService, logger: logger).ConfigureAwait(false);
-        return packages.Select(p => new Dependency(p.Id, p.ResolvedVersion));
+        
+        if (!includeDescriptions)
+        {
+            return packages.Select(p => new Dependency(p.Id, p.ResolvedVersion));
+        }
+        
+        // Read descriptions from each package's .nuspec file
+        var dependencies = new List<Dependency>();
+        
+        foreach (var package in packages)
+        {
+            string? description = await GetPackageDescription(package, processService, fileSystem, logger).ConfigureAwait(false);
+            dependencies.Add(new Dependency(package.Id, package.ResolvedVersion, description));
+        }
+        
+        return dependencies;
     }
 
     /// <summary>
@@ -186,6 +203,54 @@ internal class Dotnet : IDependencyProvider
         }
 
         return packages;
+    }
+
+    private async Task<string?> GetPackageDescription(DotnetPackage package, IExternalProcessService processService, FileSystem fileSystem, ILogger? logger)
+    {
+        // Get the NuGet global packages directory
+        var globalPackages = _globalPackages;
+        if (string.IsNullOrEmpty(globalPackages))
+        {
+            globalPackages = await GetGlobalPackagesDirectory(processService, logger).ConfigureAwait(false);
+            if (!string.IsNullOrEmpty(globalPackages))
+            {
+                _globalPackages = globalPackages;
+            }
+        }
+
+        if (string.IsNullOrEmpty(globalPackages))
+        {
+            return null;
+        }
+
+        // NuGet packages are stored as: {globalPackages}/{id}/{version}/{id}.nuspec
+        var nuspecPath = Path.Combine(globalPackages, package.DirectoryName, $"{package.Id}.nuspec");
+        
+        if (!fileSystem.FileExists(nuspecPath))
+        {
+            logger?.LogDebug(".nuspec file not found at {}", nuspecPath);
+            return null;
+        }
+
+        try
+        {
+            var nuspecContent = fileSystem.ReadAllText(nuspecPath);
+            var doc = System.Xml.Linq.XDocument.Parse(nuspecContent);
+            
+            // The nuspec file uses XML namespace
+            var ns = doc.Root?.GetDefaultNamespace() ?? System.Xml.Linq.XNamespace.None;
+            var descriptionElement = doc.Root?
+                .Element(ns + "metadata")?
+                .Element(ns + "description");
+            
+            return descriptionElement?.Value;
+        }
+        catch (Exception ex)
+        {
+            logger?.LogDebug("Failed to read description from {}: {}", nuspecPath, ex.Message);
+        }
+        
+        return null;
     }
 }
 

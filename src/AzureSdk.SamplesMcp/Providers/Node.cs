@@ -29,7 +29,7 @@ internal class Node : IDependencyProvider
     /// <summary>
     /// Retrieves Azure SDK dependencies from the project lock file.
     /// </summary>
-    public async Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = default, FileSystem? fileSystem = null)
+    public async Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = default, FileSystem? fileSystem = null, bool includeDescriptions = false)
     {
         fileSystem ??= FileSystem.Default;
 
@@ -40,12 +40,12 @@ internal class Node : IDependencyProvider
         if (fileSystem.FileExists(pnpmLockPath))
         {
             logger?.LogDebug("Found pnpm-lock.yaml, using pnpm");
-            return await GetPnpmDependencies(directory, processService, logger).ConfigureAwait(false);
+            return await GetPnpmDependencies(directory, processService, logger, fileSystem, includeDescriptions).ConfigureAwait(false);
         }
         else if (fileSystem.FileExists(npmLockPath))
         {
             logger?.LogDebug("Found package-lock.json, using npm");
-            return await GetNpmDependencies(directory, processService, logger).ConfigureAwait(false);
+            return await GetNpmDependencies(directory, processService, logger, fileSystem, includeDescriptions).ConfigureAwait(false);
         }
 
         logger?.LogWarning("No lock file found (package-lock.json or pnpm-lock.yaml)");
@@ -102,14 +102,14 @@ internal class Node : IDependencyProvider
         return samples;
     }
 
-    private static async Task<IEnumerable<Dependency>> GetNpmDependencies(string directory, IExternalProcessService processService, ILogger? logger)
+    private static async Task<IEnumerable<Dependency>> GetNpmDependencies(string directory, IExternalProcessService processService, ILogger? logger, FileSystem? fileSystem = null, bool includeDescriptions = false)
     {
-        return await GetPackageManagerDependencies("npm", ".dependencies", directory, processService, logger).ConfigureAwait(false);
+        return await GetPackageManagerDependencies("npm", ".dependencies", directory, processService, logger, fileSystem, includeDescriptions).ConfigureAwait(false);
     }
 
-    private static async Task<IEnumerable<Dependency>> GetPnpmDependencies(string directory, IExternalProcessService processService, ILogger? logger)
+    private static async Task<IEnumerable<Dependency>> GetPnpmDependencies(string directory, IExternalProcessService processService, ILogger? logger, FileSystem? fileSystem = null, bool includeDescriptions = false)
     {
-        return await GetPackageManagerDependencies("pnpm", ".[].dependencies", directory, processService, logger).ConfigureAwait(false);
+        return await GetPackageManagerDependencies("pnpm", ".[].dependencies", directory, processService, logger, fileSystem, includeDescriptions).ConfigureAwait(false);
     }
 
     private static async Task<IEnumerable<Dependency>> GetPackageManagerDependencies(
@@ -117,8 +117,11 @@ internal class Node : IDependencyProvider
         string jsonPath,
         string directory,
         IExternalProcessService processService,
-        ILogger? logger)
+        ILogger? logger,
+        FileSystem? fileSystem = null,
+        bool includeDescriptions = false)
     {
+        fileSystem ??= FileSystem.Default;
         var arguments = "list --json --depth=0";
         logger?.LogDebug("Running: {} {}", commandName, arguments);
 
@@ -165,11 +168,46 @@ internal class Node : IDependencyProvider
             if (NodePackage.TryCreate(name, version, out NodePackage? package))
             {
                 logger?.LogDebug("Adding dependency {}@{}", name, version);
-                dependencies.Add(new Dependency(package.Name, package.Version));
+                
+                string? description = null;
+                if (includeDescriptions)
+                {
+                    description = GetPackageDescription(directory, package, fileSystem, logger);
+                }
+                
+                dependencies.Add(new Dependency(package.Name, package.Version, description));
             }
         }
 
         return dependencies;
+    }
+
+    private static string? GetPackageDescription(string directory, NodePackage package, FileSystem fileSystem, ILogger? logger)
+    {
+        var packageJsonPath = Path.Combine(directory, "node_modules", package.Name, "package.json");
+        
+        if (!fileSystem.FileExists(packageJsonPath))
+        {
+            logger?.LogDebug("package.json not found at {}", packageJsonPath);
+            return null;
+        }
+
+        try
+        {
+            var packageJsonContent = fileSystem.ReadAllText(packageJsonPath);
+            using var doc = JsonDocument.Parse(packageJsonContent);
+            
+            if (doc.RootElement.TryGetProperty("description", out var descElement))
+            {
+                return descElement.GetString();
+            }
+        }
+        catch (Exception ex)
+        {
+            logger?.LogDebug("Failed to read description from {}: {}", packageJsonPath, ex.Message);
+        }
+        
+        return null;
     }
 }
 
