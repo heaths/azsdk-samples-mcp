@@ -29,7 +29,7 @@ internal class Cargo : IDependencyProvider
     /// <summary>
     /// Retrieves Azure SDK dependencies from the Cargo manifest.
     /// </summary>
-    public async Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = default, FileSystem? fileSystem = null, bool includeDescriptions = false)
+    public async Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = default, FileSystem? fileSystem = null, bool includeDescriptions = false, IEnvironment? environment = null)
     {
         fileSystem ??= FileSystem.Default;
         var manifestPath = Path.Combine(directory, "Cargo.toml");
@@ -45,7 +45,7 @@ internal class Cargo : IDependencyProvider
 
         foreach (var crate in crates)
         {
-            string? description = await GetCrateDescriptionFromCache(crate, fileSystem, logger).ConfigureAwait(false);
+            string? description = await GetCrateDescriptionFromCache(crate, fileSystem, logger, environment).ConfigureAwait(false);
             dependencies.Add(new Dependency(crate.Name, crate.Version, description));
         }
 
@@ -192,9 +192,9 @@ internal class Cargo : IDependencyProvider
         return Path.Combine(home, ".cargo", "registry", "src");
     }
 
-    private static async Task<string?> GetCrateDescriptionFromCache(Crate crate, FileSystem fileSystem, ILogger? logger)
+    private static async Task<string?> GetCrateDescriptionFromCache(Crate crate, FileSystem fileSystem, ILogger? logger, IEnvironment? environment = null)
     {
-        var home = GetCargoCacheDirectory();
+        var home = GetCargoCacheDirectory(environment);
         if (string.IsNullOrEmpty(home) || !fileSystem.DirectoryExists(home))
         {
             return null;

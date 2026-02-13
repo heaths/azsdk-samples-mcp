@@ -8,7 +8,7 @@ namespace AzureSdk.SamplesMcp.Services;
 internal interface IDependencyProvider
 {
     bool HasProject(string directory, FileSystem? fileSystem = null);
-    Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = default, FileSystem? fileSystem = null, bool includeDescriptions = false);
+    Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = default, FileSystem? fileSystem = null, bool includeDescriptions = false, IEnvironment? environment = null);
     Task<IEnumerable<string>> GetSamples(string directory, IEnumerable<Dependency> dependencies, IExternalProcessService processService, ILogger? logger = default, IEnvironment? environment = null, FileSystem? fileSystem = null);
 }
 

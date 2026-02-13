@@ -193,8 +193,11 @@ public class CargoTests
         var cargo = new Cargo();
         var directory = "cargo-project";
 
-        // Set CARGO_HOME to point to test data
-        System.Environment.SetEnvironmentVariable("CARGO_HOME", ".cargo");
+        // Use TestEnvironment to point to test data
+        var environment = new TestEnvironment
+        {
+            { "CARGO_HOME", ".cargo" }
+        };
 
         // Mock cargo metadata output
         var mockMetadata = """
@@ -216,22 +219,15 @@ public class CargoTests
 
         var processService = new MockProcessService(mockMetadata);
 
-        try
-        {
-            // Act
-            var dependencies = await cargo.GetDependencies(directory, processService, fileSystem: fileSystem, includeDescriptions: true);
-            var dependencyList = dependencies.ToList();
+        // Act
+        var dependencies = await cargo.GetDependencies(directory, processService, fileSystem: fileSystem, includeDescriptions: true, environment: environment);
+        var dependencyList = dependencies.ToList();
 
-            // Assert
-            Assert.HasCount(1, dependencyList);
-            Assert.AreEqual("azure_core", dependencyList[0].Name);
-            Assert.AreEqual("0.31.0", dependencyList[0].Version);
-            Assert.AreEqual("Core library for Azure SDK for Rust", dependencyList[0].Description);
-        }
-        finally
-        {
-            System.Environment.SetEnvironmentVariable("CARGO_HOME", null);
-        }
+        // Assert
+        Assert.HasCount(1, dependencyList);
+        Assert.AreEqual("azure_core", dependencyList[0].Name);
+        Assert.AreEqual("0.31.0", dependencyList[0].Version);
+        Assert.AreEqual("Core library for Azure SDK for Rust", dependencyList[0].Description);
     }
 
     [TestMethod]

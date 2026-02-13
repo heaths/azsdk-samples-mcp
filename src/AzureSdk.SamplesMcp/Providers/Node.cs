@@ -29,7 +29,7 @@ internal class Node : IDependencyProvider
     /// <summary>
     /// Retrieves Azure SDK dependencies from the project lock file.
     /// </summary>
-    public async Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = default, FileSystem? fileSystem = null, bool includeDescriptions = false)
+    public async Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = default, FileSystem? fileSystem = null, bool includeDescriptions = false, IEnvironment? environment = null)
     {
         fileSystem ??= FileSystem.Default;
 
