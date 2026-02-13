@@ -29,11 +29,27 @@ internal class Cargo : IDependencyProvider
     /// <summary>
     /// Retrieves Azure SDK dependencies from the Cargo manifest.
     /// </summary>
-    public async Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = default, FileSystem? fileSystem = null)
+    public async Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = default, FileSystem? fileSystem = null, bool includeDescriptions = false, IEnvironment? environment = null)
     {
+        fileSystem ??= FileSystem.Default;
         var manifestPath = Path.Combine(directory, "Cargo.toml");
         IEnumerable<Crate> crates = await GetDependencyInfo(manifestPath, processService, logger: logger, fileSystem: fileSystem).ConfigureAwait(false);
-        return crates.Select(c => new Dependency(c.Name, c.Version));
+
+        if (!includeDescriptions)
+        {
+            return crates.Select(c => new Dependency(c.Name, c.Version));
+        }
+
+        // Read descriptions from each crate's manifest in the cargo cache
+        var dependencies = new List<Dependency>();
+
+        foreach (var crate in crates)
+        {
+            string? description = await GetCrateDescriptionFromCache(crate, fileSystem, logger, environment).ConfigureAwait(false);
+            dependencies.Add(new Dependency(crate.Name, crate.Version, description));
+        }
+
+        return dependencies;
     }
 
     /// <summary>
@@ -44,13 +60,10 @@ internal class Cargo : IDependencyProvider
         environment ??= DefaultEnvironment.Default;
         fileSystem ??= FileSystem.Default;
 
-        var root = environment.GetString("CARGO_HOME");
+        var root = GetCargoCacheDirectory(environment);
         if (string.IsNullOrEmpty(root))
         {
-            root = environment.HomeDirectory;
-            if (root is not { Length: > 0 })
-                return [];
-            root = Path.Combine(root, ".cargo", "registry", "src");
+            return [];
         }
 
         logger?.LogDebug("Index root: {}", root);
@@ -155,6 +168,79 @@ internal class Cargo : IDependencyProvider
         }
 
         return crates;
+    }
+
+    /// <summary>
+    /// Gets the cargo cache directory path for registry sources.
+    /// </summary>
+    /// <param name="environment">Optional environment to read variables from. If null, uses system environment.</param>
+    /// <returns>The cargo cache directory path, or null if it cannot be determined.</returns>
+    private static string? GetCargoCacheDirectory(IEnvironment? environment = null)
+    {
+        var cargoHome = environment?.GetString("CARGO_HOME") ?? System.Environment.GetEnvironmentVariable("CARGO_HOME");
+        if (!string.IsNullOrEmpty(cargoHome))
+        {
+            return Path.Combine(cargoHome, "registry", "src");
+        }
+
+        var home = environment?.HomeDirectory ?? System.Environment.GetEnvironmentVariable("HOME");
+        if (string.IsNullOrEmpty(home))
+        {
+            return null;
+        }
+
+        return Path.Combine(home, ".cargo", "registry", "src");
+    }
+
+    private static async Task<string?> GetCrateDescriptionFromCache(Crate crate, FileSystem fileSystem, ILogger? logger, IEnvironment? environment = null)
+    {
+        var home = GetCargoCacheDirectory(environment);
+        if (string.IsNullOrEmpty(home) || !fileSystem.DirectoryExists(home))
+        {
+            return null;
+        }
+
+        // Look for the crate in any index directory
+        var indexes = fileSystem.GetDirectories(home);
+        foreach (var index in indexes)
+        {
+            var crateDir = Path.Combine(index, crate.DirectoryName);
+            if (!fileSystem.DirectoryExists(crateDir))
+            {
+                continue;
+            }
+
+            var manifestPath = Path.Combine(crateDir, "Cargo.toml");
+            if (!fileSystem.FileExists(manifestPath))
+            {
+                continue;
+            }
+
+            try
+            {
+                var tomlContent = fileSystem.ReadAllText(manifestPath);
+                var tomlModel = Tomlyn.Toml.ToModel(tomlContent);
+
+                if (tomlModel is Tomlyn.Model.TomlTable table &&
+                    table.TryGetValue("package", out var packageObj) &&
+                    packageObj is Tomlyn.Model.TomlTable package &&
+                    package.TryGetValue("description", out var descObj) &&
+                    descObj is string description)
+                {
+                    // Handle multiline descriptions by trimming and joining lines
+                    var lines = description.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)
+                        .Select(line => line.Trim())
+                        .Where(line => !string.IsNullOrWhiteSpace(line));
+                    return string.Join(" ", lines);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger?.LogWarning("Failed to read description from {}: {}", manifestPath, ex.Message);
+            }
+        }
+
+        return null;
     }
 }
 

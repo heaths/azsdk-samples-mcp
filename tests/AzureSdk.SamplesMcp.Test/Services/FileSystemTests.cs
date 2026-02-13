@@ -58,7 +58,7 @@ public class FileSystemTests
         FileSystem fs = CreateFileSystem();
         var result = fs.GetDirectories(".cargo/registry/src/index.crates.io-abcd1234").ToList();
 
-        CollectionAssert.Contains(result, ".cargo/registry/src/index.crates.io-abcd1234/azure_core-0.1.0");
+        CollectionAssert.Contains(result, ".cargo/registry/src/index.crates.io-abcd1234/azure_core-0.31.0");
         CollectionAssert.Contains(result, ".cargo/registry/src/index.crates.io-abcd1234/tokio-1.49.0");
     }
 
@@ -66,9 +66,9 @@ public class FileSystemTests
     public void GetFiles_ReturnsFileNames()
     {
         FileSystem fs = CreateFileSystem();
-        var result = fs.GetFiles(".cargo/registry/src/index.crates.io-abcd1234/azure_core-0.1.0").ToList();
+        var result = fs.GetFiles(".cargo/registry/src/index.crates.io-abcd1234/azure_core-0.31.0").ToList();
 
-        CollectionAssert.Contains(result, ".cargo/registry/src/index.crates.io-abcd1234/azure_core-0.1.0/README.md");
+        CollectionAssert.Contains(result, ".cargo/registry/src/index.crates.io-abcd1234/azure_core-0.31.0/README.md");
     }
 
     [TestMethod]
@@ -114,13 +114,13 @@ public class FileSystemTests
     public void EnumerateAncestors_ReturnsAllAncestors_ForNestedDirectory()
     {
         FileSystem fs = CreateFileSystem();
-        var result = fs.EnumerateAncestors(".cargo/registry/src/index.crates.io-abcd1234/azure_core-0.1.0").ToList();
+        var result = fs.EnumerateAncestors(".cargo/registry/src/index.crates.io-abcd1234/azure_core-0.31.0").ToList();
 
         Assert.IsNotEmpty(result);
 
         // Should include the starting directory and all ancestors up to root
         var names = result.Select(d => d.Name).Where(n => !string.IsNullOrEmpty(n)).ToList();
-        CollectionAssert.Contains(names, "azure_core-0.1.0");
+        CollectionAssert.Contains(names, "azure_core-0.31.0");
         CollectionAssert.Contains(names, "index.crates.io-abcd1234");
         CollectionAssert.Contains(names, "src");
         CollectionAssert.Contains(names, "registry");

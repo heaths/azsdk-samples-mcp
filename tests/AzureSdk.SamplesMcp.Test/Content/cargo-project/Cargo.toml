@@ -3,6 +3,7 @@ name = "cargo-project"
 version = "0.1.0"
 edition = "2021"
 publish = false
+description = "Test project for Azure SDK samples"
 
 [dependencies]
 azure_core = "0.31.0"

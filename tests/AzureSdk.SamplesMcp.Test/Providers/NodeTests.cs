@@ -299,4 +299,68 @@ public class NodeTests
 
         Assert.HasCount(0, sampleList);
     }
+
+    [TestMethod]
+    public async Task GetDependencies_IncludesDescriptions_WhenRequested()
+    {
+        // Arrange
+        var fileSystem = CreateFileSystem();
+        var provider = new Node();
+        var directory = ".";
+
+        // Mock npm list output
+        var mockOutput = """
+        {
+          "dependencies": {
+            "@azure/keyvault-secrets": {
+              "version": "4.10.0"
+            }
+          }
+        }
+        """;
+
+        var processService = new MockProcessService(mockOutput);
+
+        // Act
+        var dependencies = await provider.GetDependencies(directory, processService, fileSystem: fileSystem, includeDescriptions: true);
+        var dependencyList = dependencies.ToList();
+
+        // Assert
+        Assert.HasCount(1, dependencyList);
+        Assert.AreEqual("@azure/keyvault-secrets", dependencyList[0].Name);
+        Assert.AreEqual("4.10.0", dependencyList[0].Version);
+        Assert.AreEqual("Azure Key Vault Secrets client library for JavaScript", dependencyList[0].Description);
+    }
+
+    [TestMethod]
+    public async Task GetDependencies_ExcludesDescriptions_WhenNotRequested()
+    {
+        // Arrange
+        var fileSystem = CreateFileSystem();
+        var provider = new Node();
+        var directory = ".";
+
+        // Mock npm list output
+        var mockOutput = """
+        {
+          "dependencies": {
+            "@azure/keyvault-secrets": {
+              "version": "4.10.0"
+            }
+          }
+        }
+        """;
+
+        var processService = new MockProcessService(mockOutput);
+
+        // Act
+        var dependencies = await provider.GetDependencies(directory, processService, fileSystem: fileSystem, includeDescriptions: false);
+        var dependencyList = dependencies.ToList();
+
+        // Assert
+        Assert.HasCount(1, dependencyList);
+        Assert.AreEqual("@azure/keyvault-secrets", dependencyList[0].Name);
+        Assert.AreEqual("4.10.0", dependencyList[0].Version);
+        Assert.IsNull(dependencyList[0].Description);
+    }
 }

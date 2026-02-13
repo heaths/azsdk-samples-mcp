@@ -2,6 +2,11 @@
 
 This file provides instructions for GitHub Copilot when working on the azsdk-samples-mcp repository.
 
+> [!IMPORTANT]
+> **Always Run Linting Checks During Development**
+>
+> Before making your first commit, run spelling and markdown linting using the repository skills. See [AGENTS.md](../AGENTS.md#linting) for detailed instructions.
+
 ## Code Style
 
 - Use .NET style guide conventions
