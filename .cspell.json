@@ -19,7 +19,7 @@
     "pwsh",
     "rethrowing",
     "serde",
-    "Tomlyn"
+    "tomlyn"
   ],
   "overrides": [
     {

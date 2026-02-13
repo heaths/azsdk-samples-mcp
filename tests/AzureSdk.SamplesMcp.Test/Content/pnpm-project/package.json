@@ -1,5 +1,5 @@
 {
-  "name": "pnpm-test",
+  "name": "pnpm-project",
   "version": "1.0.0",
   "dependencies": {
     "@azure/identity": "^4.7.0"

@@ -32,7 +32,7 @@ internal class Dotnet : IDependencyProvider
     /// <summary>
     /// Retrieves Azure SDK dependencies from the project using the .NET CLI.
     /// </summary>
-    public async Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = default, FileSystem? fileSystem = null, bool includeDescriptions = false, IEnvironment? environment = null)
+    public async Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = null, FileSystem? fileSystem = null, bool includeDescriptions = false, IEnvironment? environment = null)
     {
         fileSystem ??= FileSystem.Default;
         IEnumerable<DotnetPackage> packages = await GetDependencyInfo(directory, processService, logger: logger).ConfigureAwait(false);
@@ -57,7 +57,7 @@ internal class Dotnet : IDependencyProvider
     /// <summary>
     /// Locates README files for Azure SDK packages referenced by the project.
     /// </summary>
-    public async Task<IEnumerable<string>> GetSamples(string directory, IEnumerable<Dependency> dependencies, IExternalProcessService processService, ILogger? logger = default, IEnvironment? environment = null, FileSystem? fileSystem = null)
+    public async Task<IEnumerable<string>> GetSamples(string directory, IEnumerable<Dependency> dependencies, IExternalProcessService processService, ILogger? logger = null, IEnvironment? environment = null, FileSystem? fileSystem = null)
     {
         environment ??= DefaultEnvironment.Default;
         fileSystem ??= FileSystem.Default;
@@ -224,9 +224,9 @@ internal class Dotnet : IDependencyProvider
         }
 
         // NuGet packages are stored as: {globalPackages}/{id}/{version}/{id}.nuspec
-        // NuGet stores package directories in lowercase
+        // NuGet stores package directories and .nuspec filenames in lowercase
         var packageDirectory = Path.Combine(globalPackages, package.Id.ToLowerInvariant(), package.ResolvedVersion);
-        var nuspecPath = Path.Combine(packageDirectory, $"{package.Id}.nuspec");
+        var nuspecPath = Path.Combine(packageDirectory, $"{package.Id.ToLowerInvariant()}.nuspec");
 
         if (!fileSystem.FileExists(nuspecPath))
         {

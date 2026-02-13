@@ -43,7 +43,7 @@ dotnet_style_qualification_for_event = false:suggestion # vs-default: false:none
 
 # only use var when it's obvious what the variable type is
 csharp_style_var_for_built_in_types = false:none # vs-default: true:none
-csharp_style_var_when_type_is_apparent = false:none # vs-default: true:none
+csharp_style_var_when_type_is_apparent = true:none # vs-default: true:none
 csharp_style_var_elsewhere = false:suggestion # vs-default: true:none
 
 # use language keywords instead of BCL types

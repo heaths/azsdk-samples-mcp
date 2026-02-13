@@ -23,9 +23,9 @@ public class NodeTests
         FileSystem fs = CreateFileSystem();
         Node provider = new();
 
-        var result = provider.HasProject(".", fs);
+        var result = provider.HasProject("npm-project", fs);
 
-        Assert.IsTrue(result, "Should detect package.json in root");
+        Assert.IsTrue(result, "Should detect package.json in npm-project");
     }
 
     [TestMethod]
@@ -34,9 +34,9 @@ public class NodeTests
         FileSystem fs = CreateFileSystem();
         Node provider = new();
 
-        var result = provider.HasProject("pnpm-test", fs);
+        var result = provider.HasProject("pnpm-project", fs);
 
-        Assert.IsTrue(result, "Should detect package.json in pnpm-test");
+        Assert.IsTrue(result, "Should detect package.json in pnpm-project");
     }
 
     [TestMethod]
@@ -56,7 +56,7 @@ public class NodeTests
         // Arrange
         var fileSystem = CreateFileSystem();
         var provider = new Node();
-        var directory = ".";
+        var directory = "npm-project";
 
         // Mock npm list output
         var mockOutput = """
@@ -94,7 +94,7 @@ public class NodeTests
         // Arrange
         var fileSystem = CreateFileSystem();
         var provider = new Node();
-        var directory = ".";
+        var directory = "npm-project";
 
         // Mock npm list output with multiple packages
         var mockOutput = """
@@ -131,7 +131,7 @@ public class NodeTests
         // Arrange
         var fileSystem = CreateFileSystem();
         var provider = new Node();
-        var directory = ".";
+        var directory = "npm-project";
 
         // Mock npm list output without Azure packages
         var mockOutput = """
@@ -180,7 +180,7 @@ public class NodeTests
 
         var processService = new MockProcessService(mockOutput);
 
-        var samples = await provider.GetSamples(".", dependencies, processService, fileSystem: fs);
+        var samples = await provider.GetSamples("npm-project", dependencies, processService, fileSystem: fs);
         var sampleList = samples.ToList();
 
         Assert.HasCount(1, sampleList);
@@ -213,7 +213,7 @@ public class NodeTests
 
         var processService = new MockProcessService(mockOutput);
 
-        var samples = await provider.GetSamples("pnpm-test", dependencies, processService, fileSystem: fs);
+        var samples = await provider.GetSamples("pnpm-project", dependencies, processService, fileSystem: fs);
         var sampleList = samples.ToList();
 
         Assert.HasCount(1, sampleList);
@@ -263,7 +263,7 @@ public class NodeTests
 
         var processService = new MockProcessService(mockOutput);
 
-        var samples = await provider.GetSamples(".", dependencies, processService, fileSystem: fs);
+        var samples = await provider.GetSamples("npm-project", dependencies, processService, fileSystem: fs);
         var sampleList = samples.ToList();
 
         // Only @azure/keyvault-secrets exists in test content
@@ -294,7 +294,7 @@ public class NodeTests
 
         var processService = new MockProcessService(mockOutput);
 
-        var samples = await provider.GetSamples(".", dependencies, processService, fileSystem: fs);
+        var samples = await provider.GetSamples("npm-project", dependencies, processService, fileSystem: fs);
         var sampleList = samples.ToList();
 
         Assert.HasCount(0, sampleList);
@@ -306,7 +306,7 @@ public class NodeTests
         // Arrange
         var fileSystem = CreateFileSystem();
         var provider = new Node();
-        var directory = ".";
+        var directory = "npm-project";
 
         // Mock npm list output
         var mockOutput = """
@@ -338,7 +338,7 @@ public class NodeTests
         // Arrange
         var fileSystem = CreateFileSystem();
         var provider = new Node();
-        var directory = ".";
+        var directory = "npm-project";
 
         // Mock npm list output
         var mockOutput = """
