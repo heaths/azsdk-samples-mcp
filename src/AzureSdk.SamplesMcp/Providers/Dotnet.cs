@@ -236,8 +236,8 @@ internal class Dotnet : IDependencyProvider
 
         try
         {
-            var nuspecContent = await Task.Run(() => fileSystem.ReadAllText(nuspecPath)).ConfigureAwait(false);
-            var doc = await Task.Run(() => XDocument.Parse(nuspecContent)).ConfigureAwait(false);
+            var nuspecContent = fileSystem.ReadAllText(nuspecPath);
+            var doc = XDocument.Parse(nuspecContent);
 
             // The nuspec file uses XML namespace
             var ns = doc.Root?.GetDefaultNamespace() ?? XNamespace.None;

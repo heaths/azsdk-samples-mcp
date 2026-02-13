@@ -172,7 +172,7 @@ internal class Node : IDependencyProvider
                 string? description = null;
                 if (includeDescriptions)
                 {
-                    description = await GetPackageDescription(directory, package, fileSystem, logger).ConfigureAwait(false);
+                    description = GetPackageDescription(directory, package, fileSystem, logger);
                 }
 
                 dependencies.Add(new Dependency(package.Name, package.Version, description));
@@ -182,7 +182,7 @@ internal class Node : IDependencyProvider
         return dependencies;
     }
 
-    private static async Task<string?> GetPackageDescription(string directory, NodePackage package, FileSystem fileSystem, ILogger? logger)
+    private static string? GetPackageDescription(string directory, NodePackage package, FileSystem fileSystem, ILogger? logger)
     {
         var packageJsonPath = Path.Combine(directory, "node_modules", package.Name, "package.json");
 
@@ -194,8 +194,8 @@ internal class Node : IDependencyProvider
 
         try
         {
-            var packageJsonContent = await Task.Run(() => fileSystem.ReadAllText(packageJsonPath)).ConfigureAwait(false);
-            using var doc = await Task.Run(() => JsonDocument.Parse(packageJsonContent)).ConfigureAwait(false);
+            var packageJsonContent = fileSystem.ReadAllText(packageJsonPath);
+            using var doc = JsonDocument.Parse(packageJsonContent);
 
             if (doc.RootElement.TryGetProperty("description", out var descElement))
             {
