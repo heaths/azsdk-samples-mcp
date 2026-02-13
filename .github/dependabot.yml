@@ -1,0 +1,14 @@
+version: 2
+updates:
+- package-ecosystem: dotnet-sdk
+  directory: /
+  schedule:
+    interval: weekly
+- package-ecosystem: cargo
+  directory: /samples
+  schedule:
+    internal: weekly
+- package-ecosystem: npm
+  directory: /samples
+  schedule:
+    internal: weekly
