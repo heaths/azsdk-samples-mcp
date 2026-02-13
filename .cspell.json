@@ -18,7 +18,8 @@
     "postprovision",
     "pwsh",
     "rethrowing",
-    "serde"
+    "serde",
+    "Tomlyn"
   ],
   "overrides": [
     {
