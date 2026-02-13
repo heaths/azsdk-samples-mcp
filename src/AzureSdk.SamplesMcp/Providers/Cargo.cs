@@ -29,7 +29,7 @@ internal class Cargo : IDependencyProvider
     /// <summary>
     /// Retrieves Azure SDK dependencies from the Cargo manifest.
     /// </summary>
-    public async Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = default, FileSystem? fileSystem = null, bool includeDescriptions = false, IEnvironment? environment = null)
+    public async Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = null, FileSystem? fileSystem = null, bool includeDescriptions = false, IEnvironment? environment = null)
     {
         fileSystem ??= FileSystem.Default;
         var manifestPath = Path.Combine(directory, "Cargo.toml");
@@ -55,7 +55,7 @@ internal class Cargo : IDependencyProvider
     /// <summary>
     /// Locates README and example files for Azure SDK crates referenced by the project.
     /// </summary>
-    public async Task<IEnumerable<string>> GetSamples(string directory, IEnumerable<Dependency> dependencies, IExternalProcessService processService, ILogger? logger = default, IEnvironment? environment = null, FileSystem? fileSystem = null)
+    public async Task<IEnumerable<string>> GetSamples(string directory, IEnumerable<Dependency> dependencies, IExternalProcessService processService, ILogger? logger = null, IEnvironment? environment = null, FileSystem? fileSystem = null)
     {
         environment ??= DefaultEnvironment.Default;
         fileSystem ??= FileSystem.Default;

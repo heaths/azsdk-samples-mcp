@@ -29,7 +29,7 @@ internal class Node : IDependencyProvider
     /// <summary>
     /// Retrieves Azure SDK dependencies from the project lock file.
     /// </summary>
-    public async Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = default, FileSystem? fileSystem = null, bool includeDescriptions = false, IEnvironment? environment = null)
+    public async Task<IEnumerable<Dependency>> GetDependencies(string directory, IExternalProcessService processService, ILogger? logger = null, FileSystem? fileSystem = null, bool includeDescriptions = false, IEnvironment? environment = null)
     {
         fileSystem ??= FileSystem.Default;
 
@@ -55,7 +55,7 @@ internal class Node : IDependencyProvider
     /// <summary>
     /// Locates README files for Azure SDK packages installed in node_modules.
     /// </summary>
-    public async Task<IEnumerable<string>> GetSamples(string directory, IEnumerable<Dependency> dependencies, IExternalProcessService processService, ILogger? logger = default, IEnvironment? environment = null, FileSystem? fileSystem = null)
+    public async Task<IEnumerable<string>> GetSamples(string directory, IEnumerable<Dependency> dependencies, IExternalProcessService processService, ILogger? logger = null, IEnvironment? environment = null, FileSystem? fileSystem = null)
     {
         fileSystem ??= FileSystem.Default;
 

@@ -1,5 +1,5 @@
 {
-  "name": "test",
+  "name": "npm-project",
   "version": "1.0.0",
   "dependencies": {
     "@azure/keyvault-secrets": "^4.10.0"
