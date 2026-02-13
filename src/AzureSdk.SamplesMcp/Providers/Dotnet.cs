@@ -237,7 +237,7 @@ internal class Dotnet : IDependencyProvider
         try
         {
             using var stream = fileSystem.OpenRead(nuspecPath);
-            var doc = await XDocument.LoadAsync(stream, LoadOptions.None, default).ConfigureAwait(false);
+            var doc = await XDocument.LoadAsync(stream, LoadOptions.None, CancellationToken.None).ConfigureAwait(false);
 
             // The nuspec file uses XML namespace
             var ns = doc.Root?.GetDefaultNamespace() ?? XNamespace.None;

@@ -195,7 +195,7 @@ internal class Node : IDependencyProvider
         try
         {
             using var stream = fileSystem.OpenRead(packageJsonPath);
-            using var doc = await JsonDocument.ParseAsync(stream, default, default).ConfigureAwait(false);
+            using var doc = await JsonDocument.ParseAsync(stream, cancellationToken: CancellationToken.None).ConfigureAwait(false);
 
             if (doc.RootElement.TryGetProperty("description", out var descElement))
             {
