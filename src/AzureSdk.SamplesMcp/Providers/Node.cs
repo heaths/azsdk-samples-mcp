@@ -188,7 +188,7 @@ internal class Node : IDependencyProvider
 
         if (!fileSystem.FileExists(packageJsonPath))
         {
-            logger?.LogWarning("package.json not found at {}", packageJsonPath);
+            logger?.LogDebug("package.json not found at {}", packageJsonPath);
             return null;
         }
 

@@ -230,7 +230,7 @@ internal class Dotnet : IDependencyProvider
 
         if (!fileSystem.FileExists(nuspecPath))
         {
-            logger?.LogWarning(".nuspec file not found at {}", nuspecPath);
+            logger?.LogDebug(".nuspec file not found at {}", nuspecPath);
             return null;
         }
 
