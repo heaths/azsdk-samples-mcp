@@ -73,6 +73,13 @@ internal class FileSystem(IFileProvider? fileProvider = null)
     public string ReadAllText(string path) => new System.IO.StreamReader(_fileProvider.GetFileInfo(path).CreateReadStream()).ReadToEnd();
 
     /// <summary>
+    /// Opens a read stream for the file at the specified path.
+    /// </summary>
+    /// <param name="path">The path of the file to read.</param>
+    /// <returns>A stream for reading the file.</returns>
+    public System.IO.Stream OpenRead(string path) => _fileProvider.GetFileInfo(path).CreateReadStream();
+
+    /// <summary>
     /// Enumerates all ancestor directories starting from the specified directory up to the root.
     /// </summary>
     /// <param name="directory">The directory from which to start enumerating ancestors.</param>

@@ -64,43 +64,6 @@ For all linting tasks:
 - **Spelling**: Follow the cspell skill instructions in [.github/skills/cspell/SKILL.md](.github/skills/cspell/SKILL.md) — This reads your `package.json` for version pinning and applies the project's cspell configuration.
 - **Markdown**: Follow the markdownlint skill instructions in [.github/skills/markdownlint/SKILL.md](.github/skills/markdownlint/SKILL.md) — This reads your `package.json` for version pinning and applies the project's markdownlint configuration.
 
-### Quick Reference
-
-Based on the versions in `package.json`, run these commands:
-
-```bash
-# Check spelling
-npx -y cspell@9.6.2 lint --config .cspell.json .
-
-# Lint markdown files
-npx -y markdownlint-cli2@0.20.0
-
-# Fix markdown issues automatically
-npx -y markdownlint-cli2@0.20.0 --fix
-```
-
-### Troubleshooting Common Issues
-
-**Unknown words in code:**
-
-- **Technical terms, library names**: Add to the `words` array in `.cspell.json`
-- **File-specific terms**: Add a comment in the file: `// cspell:ignore wordname`
-- **Example**: If you add a dependency on "Tomlyn" library, add it to `.cspell.json`:
-
-  <!-- cspell:ignore anotherterm -->
-  ```json
-  "words": [
-    "Tomlyn",
-    "anotherterm"
-  ]
-  ```
-
-**Markdown formatting issues:**
-
-- Run with `--fix` flag first: `npx -y markdownlint-cli2@0.20.0 --fix`
-- This auto-fixes most common issues (spacing, line endings, etc.)
-- For remaining issues, check the error messages and fix manually
-
 ## Code Style and Formatting
 
 For coding conventions and style guidance, also follow the instructions in [.github/copilot-instructions.md](.github/copilot-instructions.md).
@@ -180,11 +143,8 @@ Before creating a commit or pull request, verify all quality checks have passed.
 # 1. Format .NET code
 dotnet format --severity warn
 
-# 2. Verify spelling passes
-npx -y cspell@9.6.2 lint --config .cspell.json .
-
-# 3. Verify markdown linting passes
-npx -y markdownlint-cli2@0.20.0
+# 2. Check spelling (see .github/skills/cspell/SKILL.md for command)
+# 3. Lint Markdown (see .github/skills/markdownlint/SKILL.md for command)
 
 # 4. Run tests
 dotnet test

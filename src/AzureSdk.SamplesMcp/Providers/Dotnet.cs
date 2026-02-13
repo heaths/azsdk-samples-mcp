@@ -230,14 +230,14 @@ internal class Dotnet : IDependencyProvider
 
         if (!fileSystem.FileExists(nuspecPath))
         {
-            logger?.LogDebug(".nuspec file not found at {}", nuspecPath);
+            logger?.LogWarning(".nuspec file not found at {}", nuspecPath);
             return null;
         }
 
         try
         {
-            var nuspecContent = fileSystem.ReadAllText(nuspecPath);
-            var doc = XDocument.Parse(nuspecContent);
+            using var stream = fileSystem.OpenRead(nuspecPath);
+            var doc = await XDocument.LoadAsync(stream, LoadOptions.None, default).ConfigureAwait(false);
 
             // The nuspec file uses XML namespace
             var ns = doc.Root?.GetDefaultNamespace() ?? XNamespace.None;
