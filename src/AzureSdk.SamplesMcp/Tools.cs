@@ -50,7 +50,7 @@ public static class Tools
             {
                 return d.Name;
             }
-            return $"{d.Name}: {d.Description}";
+            return $"{d.Name} - {d.Description}";
         });
     }
 

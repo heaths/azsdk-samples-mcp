@@ -60,13 +60,10 @@ internal class Cargo : IDependencyProvider
         environment ??= DefaultEnvironment.Default;
         fileSystem ??= FileSystem.Default;
 
-        var root = environment.GetString("CARGO_HOME");
+        var root = GetCargoCacheDirectory(environment);
         if (string.IsNullOrEmpty(root))
         {
-            root = environment.HomeDirectory;
-            if (root is not { Length: > 0 })
-                return [];
-            root = Path.Combine(root, ".cargo", "registry", "src");
+            return [];
         }
 
         logger?.LogDebug("Index root: {}", root);
@@ -173,25 +170,32 @@ internal class Cargo : IDependencyProvider
         return crates;
     }
 
-    private static async Task<string?> GetCrateDescriptionFromCache(Crate crate, FileSystem fileSystem, ILogger? logger)
+    /// <summary>
+    /// Gets the cargo cache directory path for registry sources.
+    /// </summary>
+    /// <param name="environment">Optional environment to read variables from. If null, uses system environment.</param>
+    /// <returns>The cargo cache directory path, or null if it cannot be determined.</returns>
+    private static string? GetCargoCacheDirectory(IEnvironment? environment = null)
     {
-        // Get the cargo cache directory
-        var home = System.Environment.GetEnvironmentVariable("CARGO_HOME");
-        if (string.IsNullOrEmpty(home))
+        var cargoHome = environment?.GetString("CARGO_HOME") ?? System.Environment.GetEnvironmentVariable("CARGO_HOME");
+        if (!string.IsNullOrEmpty(cargoHome))
         {
-            home = System.Environment.GetEnvironmentVariable("HOME");
-            if (string.IsNullOrEmpty(home))
-            {
-                return null;
-            }
-            home = Path.Combine(home, ".cargo", "registry", "src");
-        }
-        else
-        {
-            home = Path.Combine(home, "registry", "src");
+            return Path.Combine(cargoHome, "registry", "src");
         }
 
-        if (!fileSystem.DirectoryExists(home))
+        var home = environment?.HomeDirectory ?? System.Environment.GetEnvironmentVariable("HOME");
+        if (string.IsNullOrEmpty(home))
+        {
+            return null;
+        }
+
+        return Path.Combine(home, ".cargo", "registry", "src");
+    }
+
+    private static async Task<string?> GetCrateDescriptionFromCache(Crate crate, FileSystem fileSystem, ILogger? logger)
+    {
+        var home = GetCargoCacheDirectory();
+        if (string.IsNullOrEmpty(home) || !fileSystem.DirectoryExists(home))
         {
             return null;
         }
@@ -232,7 +236,7 @@ internal class Cargo : IDependencyProvider
             }
             catch (Exception ex)
             {
-                logger?.LogDebug("Failed to read description from {}: {}", manifestPath, ex.Message);
+                logger?.LogWarning("Failed to read description from {}: {}", manifestPath, ex.Message);
             }
         }
 
