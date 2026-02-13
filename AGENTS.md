@@ -2,6 +2,13 @@
 
 This document provides guidance for agents working on the azsdk-samples-mcp repository.
 
+> [!IMPORTANT]
+> **Run Linting During Development**
+>
+> **ALWAYS run spelling and markdown linting checks using the repository skills BEFORE creating your first commit.** Do not wait until the pre-commit checklist - run these checks early and often during development to catch issues immediately.
+>
+> See the [Linting](#linting) section below for details.
+
 ## Repository Structure
 
 The repository contains a Model Context Protocol (MCP) server built in C# that provides tools for discovering and retrieving samples from Azure SDK dependencies. It also includes Rust utilities for testing.
@@ -35,6 +42,76 @@ dotnet build
 ```
 
 This builds both the `src/AzureSdk.SamplesMcp` project and the test suite in `tests/AzureSdk.SamplesMcp.Test`.
+
+## Linting
+
+**ALWAYS use the repository skills for linting. Do not run linting commands directly.**
+
+### When to Run Linting
+
+Run linting checks at these key times during development:
+
+- **Early**: After adding new code with technical terms, library names, or identifiers
+- **During development**: After creating or modifying markdown documentation
+- **Before first commit**: Before running `report_progress` for the first time
+- **Throughout**: Whenever you add new words that might be flagged as misspellings
+- **Final check**: As part of the pre-commit checklist
+
+### Available Linting Tools
+
+For all linting tasks:
+
+- **Spelling**: Follow the cspell skill instructions in [.github/skills/cspell/SKILL.md](.github/skills/cspell/SKILL.md) — This reads your `package.json` for version pinning and applies the project's cspell configuration.
+- **Markdown**: Follow the markdownlint skill instructions in [.github/skills/markdownlint/SKILL.md](.github/skills/markdownlint/SKILL.md) — This reads your `package.json` for version pinning and applies the project's markdownlint configuration.
+
+### Quick Reference
+
+Based on the versions in `package.json`, run these commands:
+
+```bash
+# Check spelling
+npx -y cspell@9.6.2 lint --config .cspell.json .
+
+# Lint markdown files
+npx -y markdownlint-cli2@0.20.0
+
+# Fix markdown issues automatically
+npx -y markdownlint-cli2@0.20.0 --fix
+```
+
+### Troubleshooting Common Issues
+
+**Unknown words in code:**
+
+- **Technical terms, library names**: Add to the `words` array in `.cspell.json`
+- **File-specific terms**: Add a comment in the file: `// cspell:ignore wordname`
+- **Example**: If you add a dependency on "Tomlyn" library, add it to `.cspell.json`:
+
+  <!-- cspell:ignore anotherterm -->
+  ```json
+  "words": [
+    "Tomlyn",
+    "anotherterm"
+  ]
+  ```
+
+**Markdown formatting issues:**
+
+- Run with `--fix` flag first: `npx -y markdownlint-cli2@0.20.0 --fix`
+- This auto-fixes most common issues (spacing, line endings, etc.)
+- For remaining issues, check the error messages and fix manually
+
+## Code Style and Formatting
+
+For coding conventions and style guidance, also follow the instructions in [.github/copilot-instructions.md](.github/copilot-instructions.md).
+
+Before committing changes, run the formatter to fix style issues:
+
+```bash
+dotnet format --severity warn
+```
+
+If `dotnet format` cannot fix remaining issues, manually address them according to the error messages. The analyzer in the CI pipeline will verify formatting is correct.
 
 ## Testing
 
@@ -93,37 +170,21 @@ To run all samples with provisioned resources:
    npm exec list-appconfig -- $(azd env get-value AZURE_APPCONFIG_ENDPOINT)
    ```
 
-## Code Style and Formatting
-
-For coding conventions and style guidance, also follow the instructions in [.github/copilot-instructions.md](.github/copilot-instructions.md).
-
-Before committing changes, run the formatter to fix style issues:
-
-```bash
-dotnet format --severity warn
-```
-
-If `dotnet format` cannot fix remaining issues, manually address them according to the error messages. The analyzer in the CI pipeline will verify formatting is correct.
-
-## Linting
-
-**ALWAYS use the repository skills for linting. Do not run linting commands directly.**
-
-For all linting tasks:
-
-- **Spelling**: Follow the cspell skill instructions in [.github/skills/cspell/SKILL.md](.github/skills/cspell/SKILL.md) — This reads your `package.json` for version pinning and applies the project's cspell configuration.
-- **Markdown**: Follow the markdownlint skill instructions in [.github/skills/markdownlint/SKILL.md](.github/skills/markdownlint/SKILL.md) — This reads your `package.json` for version pinning and applies the project's markdownlint configuration.
-
 ## Pre-commit Checklist
 
-Before creating a commit or pull request, run all quality checks:
+Before creating a commit or pull request, verify all quality checks have passed.
+
+**Note**: You should have already run linting checks during development (see [Linting](#linting) section above). This checklist is a final verification.
 
 ```bash
 # 1. Format .NET code
 dotnet format --severity warn
 
-# 2. Check spelling (see .github/skills/cspell/SKILL.md for command)
-# 3. Lint Markdown (see .github/skills/markdownlint/SKILL.md for command)
+# 2. Verify spelling passes
+npx -y cspell@9.6.2 lint --config .cspell.json .
+
+# 3. Verify markdown linting passes
+npx -y markdownlint-cli2@0.20.0
 
 # 4. Run tests
 dotnet test
@@ -132,7 +193,7 @@ dotnet test
 dotnet build
 ```
 
-All checks must pass before committing. See the skill files for the exact linting commands with proper version pinning.
+All checks must pass before committing.
 
 ## Logging
 
