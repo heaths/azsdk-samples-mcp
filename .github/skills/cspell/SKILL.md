@@ -2,16 +2,13 @@
 name: cspell
 description: Check and fix spelling in project source files using cSpell.
 compatibility: Requires Node.js with npm version 7.0 or newer.
-allowed-tools: bash(npx:*)
 ---
 
 # Spell checking
 
 ## Installation and usage
 
-Run `npx -y cspell@<version> <command>` from the repository root.
-
-If a `package.json` exists in the repository root with `cspell` listed in `devDependencies`, use that version. Otherwise, use the latest version (omit `@<version>`).
+If a `package.json` exists in the repository root with `cspell` listed in `devDependencies`, run `npm install --dev` from the repository root first. Then run `npx cspell <command>`.
 
 ## Configuration
 
@@ -33,7 +30,7 @@ They may also be located in a `.vscode/` directory e.g.:
 - `.vscode/cspell.json`
 
 If a suitable configuration is not found, create a `.cspell.json` file in the root of the repository.
-The configuration file schema is described at `https://raw.githubusercontent.com/streetsidesoftware/cspell/v<version>/cspell.schema.json` where `<version>` should match the version from `package.json` devDependencies (e.g., `v9.6.2`). If no `package.json` exists, use `https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json`.
+The configuration file schema is described at `https://raw.githubusercontent.com/streetsidesoftware/cspell/v<version>/cspell.schema.json` where `<version>` should match the `cspell` version from the repository root `package.json` `devDependencies` (e.g., `v9.6.2`). If no suitable `cspell` entry is found in the repository root `package.json`, use `https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json`.
 Always include the schema URI in the `$schema` field and set the current project language e.g., "en".
 Inside a git repository you should also set `useGitignore` to `true` in the configuration file.
 
@@ -41,7 +38,7 @@ When running any cspell command, pass `--config <path>` with the path to the con
 
 ## Check spelling
 
-Run `npx -y cspell@<version> lint [options] [globs...]` to check a list of file globs or `.` for the directory tree.
+Run `npx cspell lint [options] [globs...]` to check a list of file globs or `.` for the directory tree.
 
 ## Fix spelling
 

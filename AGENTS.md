@@ -2,16 +2,11 @@
 
 This document provides guidance for agents working on the azsdk-samples-mcp repository.
 
-> [!IMPORTANT]
-> **Run Linting During Development**
->
-> **ALWAYS run spelling and markdown linting checks using the repository skills BEFORE creating your first commit.** Do not wait until the pre-commit checklist - run these checks early and often during development to catch issues immediately.
->
-> See the [Linting](#linting) section below for details.
+## Repository Overview
 
-## Repository Structure
+This repository contains a Model Context Protocol (MCP) server built in C# that provides tools for discovering and retrieving samples from Azure SDK dependencies. It also includes Rust utilities for testing.
 
-The repository contains a Model Context Protocol (MCP) server built in C# that provides tools for discovering and retrieving samples from Azure SDK dependencies. It also includes Rust utilities for testing.
+### Repository Structure
 
 ```text
 ├── src/AzureSdk.SamplesMcp/          # Main MCP server (.NET)
@@ -31,9 +26,45 @@ The repository contains a Model Context Protocol (MCP) server built in C# that p
 └── .github/workflows/                # CI/CD workflows
 ```
 
-## Building
+## Style Guidelines
 
-### .NET Project
+- Use .NET style guide conventions.
+- Ensure all code follows project formatting standards by running `dotnet format --severity warn`.
+- Fix any formatting issues that the formatter reports but cannot automatically correct.
+- Use structured logging with `ILogger` instead of `Console.WriteLine`.
+- Logging must be configured in `Program.cs` only.
+- All components should inject and use `ILoggerFactory` for logging.
+- All C# source files must include a copyright header:
+
+   ```csharp
+   // Copyright {Year} Heath Stewart.
+   // Licensed under the MIT License. See LICENSE.txt in the project root for license information.
+   ```
+
+   Use the year when the source file was created.
+
+### Test Naming
+
+Test source files and classes should end in "Tests", with the base name matching the class being tested:
+
+- File: `FileSystemTests.cs`
+- Class: `FileSystemTests`
+- Tests for: `FileSystem`
+
+Use MSTest 4.0 assertions and patterns for all tests.
+
+### Logging Example
+
+```csharp
+ILogger logger = context.Services!.GetRequiredService<ILoggerFactory>()
+      .CreateLogger("ToolName");
+logger.LogDebug("Debug message {}", param);
+logger.LogInformation("Info message {}", param);
+```
+
+## Development Commands
+
+### Building
 
 Build the main MCP server from the repository root:
 
@@ -41,13 +72,21 @@ Build the main MCP server from the repository root:
 dotnet build
 ```
 
-This builds both the `src/AzureSdk.SamplesMcp` project and the test suite in `tests/AzureSdk.SamplesMcp.Test`.
+This builds both `src/AzureSdk.SamplesMcp` and the tests in `tests/AzureSdk.SamplesMcp.Test`.
 
-## Linting
+### Testing
+
+Run unit tests from the repository root:
+
+```bash
+dotnet test
+```
+
+### Linting
 
 **ALWAYS use the repository skills for linting. Do not run linting commands directly.**
 
-### When to Run Linting
+#### When to Run Linting
 
 Run linting checks at these key times during development:
 
@@ -57,34 +96,22 @@ Run linting checks at these key times during development:
 - **Throughout**: Whenever you add new words that might be flagged as misspellings
 - **Final check**: As part of the pre-commit checklist
 
-### Available Linting Tools
+#### Skills
 
-For all linting tasks:
+- **cspell**: [Check and fix spelling in project source files using cSpell.](.github/skills/cspell/SKILL.md)
+- **markdownlint**: [Check and fix formatting and other issues in markdown files using markdownlint-cli2.](.github/skills/markdownlint/SKILL.md)
 
-- **Spelling**: Follow the cspell skill instructions in [.github/skills/cspell/SKILL.md](.github/skills/cspell/SKILL.md) — This reads your `package.json` for version pinning and applies the project's cspell configuration.
-- **Markdown**: Follow the markdownlint skill instructions in [.github/skills/markdownlint/SKILL.md](.github/skills/markdownlint/SKILL.md) — This reads your `package.json` for version pinning and applies the project's markdownlint configuration.
+### Formatting
 
-## Code Style and Formatting
-
-For coding conventions and style guidance, also follow the instructions in [.github/copilot-instructions.md](.github/copilot-instructions.md).
-
-Before committing changes, run the formatter to fix style issues:
+Before committing changes, run:
 
 ```bash
 dotnet format --severity warn
 ```
 
-If `dotnet format` cannot fix remaining issues, manually address them according to the error messages. The analyzer in the CI pipeline will verify formatting is correct.
+If `dotnet format` cannot fix remaining issues, manually address them according to the error messages. The analyzer in the CI pipeline verifies formatting.
 
-## Testing
-
-### .NET Tests
-
-Run unit tests from the repository root:
-
-```bash
-dotnet test
-```
+## Samples and Provisioning
 
 ### Provisioning Azure Resources
 
@@ -137,33 +164,15 @@ To run all samples with provisioned resources:
 
 Before creating a commit or pull request, verify all quality checks have passed.
 
-**Note**: You should have already run linting checks during development (see [Linting](#linting) section above). This checklist is a final verification.
+This is a final verification. Linting should already be run during development (see [Linting](#linting)).
 
-```bash
-# 1. Format .NET code
-dotnet format --severity warn
-
-# 2. Check spelling (see .github/skills/cspell/SKILL.md for command)
-# 3. Lint Markdown (see .github/skills/markdownlint/SKILL.md for command)
-
-# 4. Run tests
-dotnet test
-
-# 5. Build to verify no compilation errors
-dotnet build
-```
+1. Complete [Formatting](#formatting).
+2. Run both linting skills listed in [Skills](#skills).
+3. Complete [Building](#building).
+4. Complete [Testing](#testing).
 
 All checks must pass before committing.
 
-## Logging
+## Commits and Pull Requests
 
-Logging is configured centrally in `Program.cs`. All components should use the injected `ILoggerFactory` to create loggers rather than writing directly to console. The log level defaults to `Information` but can be adjusted in the configuration.
-
-Example:
-
-```csharp
-ILogger logger = context.Services!.GetRequiredService<ILoggerFactory>()
-    .CreateLogger("ToolName");
-logger.LogDebug("Debug message {}", param);
-logger.LogInformation("Info message {}", param);
-```
+See [.github/instructions/commits.instructions.md](.github/instructions/commits.instructions.md) for commit message and pull request guidelines.
