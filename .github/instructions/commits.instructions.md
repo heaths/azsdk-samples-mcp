@@ -34,5 +34,6 @@ what problem it solves, and any relevant context>
 
 - PR title should follow the same short imperative format
 - PR description should provide an overview of changes
+- PR description should not include plan details or tasks
 - Focus on the big picture—don't describe every file changed
 - Link to any related issues
