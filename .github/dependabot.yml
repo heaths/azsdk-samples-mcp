@@ -1,7 +1,10 @@
 version: 2
 updates:
   - package-ecosystem: dotnet-sdk
-    directory: /
+    directories:
+      - /src/*
+      - /tests/*
+      - /samples/*
     schedule:
       interval: weekly
     groups:
@@ -15,7 +18,8 @@ updates:
         patterns:
           - "*"
   - package-ecosystem: cargo
-    directory: /samples
+    directories:
+      - /samples/*
     schedule:
       interval: weekly
     groups:
@@ -26,7 +30,9 @@ updates:
         patterns:
           - "*"
   - package-ecosystem: npm
-    directory: /
+    directories:
+      - /
+      - /samples/*
     schedule:
       interval: weekly
     groups:
