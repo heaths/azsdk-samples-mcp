@@ -98,8 +98,10 @@ Run linting checks at these key times during development:
 
 #### Skills
 
-- **cspell**: [Check and fix spelling in project source files using cSpell.](.github/skills/cspell/SKILL.md)
-- **markdownlint**: [Check and fix formatting and other issues in markdown files using markdownlint-cli2.](.github/skills/markdownlint/SKILL.md)
+- **check-spelling**: [Check and fix spelling in project source files using cSpell](.github/skills/check-spelling/SKILL.md)
+- **lint-markdown**: [Check and fix formatting and other issues in markdown files using markdownlint-cli2](.github/skills/lint-markdown/SKILL.md)
+
+When both a repository skill and a plugin skill could handle the same task, always prefer the repository skill over the plugin skill.
 
 ### Formatting
 

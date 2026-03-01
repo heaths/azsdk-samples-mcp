@@ -1,5 +1,6 @@
 artifacts/
 bin/
+node_modules/
 obj/
 TestResults/
 .DS_Store
