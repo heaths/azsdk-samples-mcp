@@ -4,11 +4,35 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    groups:
+      azure-sdk:
+        patterns:
+          - "Azure.*"
+      microsoft-extensions:
+        patterns:
+          - "Microsoft.Extensions.*"
+      all-other-dotnet:
+        patterns:
+          - "*"
   - package-ecosystem: cargo
     directory: /samples
     schedule:
       interval: weekly
+    groups:
+      azure-sdk:
+        patterns:
+          - "azure_*"
+      all-other-cargo:
+        patterns:
+          - "*"
   - package-ecosystem: npm
     directory: /samples
     schedule:
       interval: weekly
+    groups:
+      azure-sdk:
+        patterns:
+          - "@azure/*"
+      all-other-npm:
+        patterns:
+          - "*"
