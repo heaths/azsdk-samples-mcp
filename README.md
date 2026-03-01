@@ -20,9 +20,19 @@ An MCP (Model Context Protocol) server that discovers and retrieves code samples
 
 ## Installation
 
+### Install as a Copilot CLI Plugin
+
+Install the plugin using [GitHub Copilot CLI](https://docs.github.com/copilot/how-tos/copilot-cli/customize-copilot/plugins-finding-installing):
+
+```bash
+copilot plugin install heaths/azsdk-samples-mcp
+```
+
+This installs the MCP server and makes it available in all Copilot CLI sessions.
+
 ### Install as a Global Tool
 
-Install the MCP server as a global .NET tool from nuget.org:
+Alternatively, install the MCP server as a global .NET tool from nuget.org:
 
 ```bash
 dotnet tool install --global AzureSdk.SamplesMcp --prerelease
@@ -50,6 +60,8 @@ dotnet build
 ```
 
 ## Configuration
+
+> **Note:** If you installed the [Copilot CLI plugin](#install-as-a-copilot-cli-plugin), no additional configuration is needed.
 
 ### Automatic Configuration
 
