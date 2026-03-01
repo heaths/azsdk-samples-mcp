@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
+  "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/v9.7.0/cspell.schema.json",
   "version": "0.2",
   "useGitignore": true,
   "ignorePaths": [
