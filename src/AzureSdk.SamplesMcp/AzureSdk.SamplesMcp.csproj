@@ -8,9 +8,6 @@
     <ToolCommandName>azsdk-samples</ToolCommandName>
     <PackAsTool>true</PackAsTool>
     <PackageType>McpServer</PackageType>
-    <SelfContained>true</SelfContained>
-    <PublishSelfContained>true</PublishSelfContained>
-    <PublishSingleFile>true</PublishSingleFile>
 
     <Description>
 <![CDATA[
