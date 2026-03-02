@@ -18,7 +18,7 @@ public static class Tools
     private static readonly IDependencyProvider[] s_providers = [
         new Cargo(),
         new Dotnet(),
-        new GoMod(),
+        new Go(),
         new Maven(),
         new Pip(),
         new Node(),

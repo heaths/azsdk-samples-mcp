@@ -12,7 +12,7 @@ namespace AzureSdk.SamplesMcp.Providers;
 /// <summary>
 /// Provides dependency discovery and sample lookup for Go module projects.
 /// </summary>
-internal partial class GoMod : IDependencyProvider
+internal partial class Go : IDependencyProvider
 {
     /// <summary>
     /// Determines whether the specified directory contains a Go module.
@@ -280,7 +280,7 @@ internal partial class GoMod : IDependencyProvider
         return null;
     }
 
-    [GeneratedRegex(@"^(example[_.].*\.go|.*_example_test\.go|example_test\.go)$", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"^example(_[a-z0-9_]*)?_test\.go$")]
     private static partial Regex ExampleFilePattern();
 }
 

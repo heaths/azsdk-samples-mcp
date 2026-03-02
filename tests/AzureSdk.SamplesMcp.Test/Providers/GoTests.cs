@@ -8,11 +8,11 @@ using Microsoft.Extensions.FileProviders;
 namespace AzureSdk.SamplesMcp.Providers;
 
 [TestClass]
-public class GoModTests
+public class GoTests
 {
     private static FileSystem CreateFileSystem()
     {
-        Assembly assembly = typeof(GoModTests).Assembly;
+        Assembly assembly = typeof(GoTests).Assembly;
         var provider = new ManifestEmbeddedFileProvider(assembly, "Content");
         return new FileSystem(provider);
     }
@@ -22,11 +22,11 @@ public class GoModTests
     {
         // Arrange
         var fileSystem = CreateFileSystem();
-        var goMod = new GoMod();
+        var go = new Go();
         var directory = "go-project";
 
         // Act
-        var result = goMod.HasProject(directory, fileSystem);
+        var result = go.HasProject(directory, fileSystem);
 
         // Assert
         Assert.IsTrue(result);
@@ -37,11 +37,11 @@ public class GoModTests
     {
         // Arrange
         var fileSystem = CreateFileSystem();
-        var goMod = new GoMod();
+        var go = new Go();
         var directory = "nonexistent";
 
         // Act
-        var result = goMod.HasProject(directory, fileSystem);
+        var result = go.HasProject(directory, fileSystem);
 
         // Assert
         Assert.IsFalse(result);
@@ -52,12 +52,12 @@ public class GoModTests
     {
         // Arrange
         var fileSystem = CreateFileSystem();
-        var goMod = new GoMod();
+        var go = new Go();
         var directory = "go-project";
         var processService = new MockProcessService("");
 
         // Act
-        var dependencies = await goMod.GetDependencies(directory, processService, fileSystem: fileSystem);
+        var dependencies = await go.GetDependencies(directory, processService, fileSystem: fileSystem);
         var dependencyList = dependencies.ToList();
 
         // Assert
@@ -71,12 +71,12 @@ public class GoModTests
     {
         // Arrange
         var fileSystem = CreateFileSystem();
-        var goMod = new GoMod();
+        var go = new Go();
         var directory = "go-project";
         var processService = new MockProcessService("");
 
         // Act
-        var dependencies = await goMod.GetDependencies(directory, processService, fileSystem: fileSystem);
+        var dependencies = await go.GetDependencies(directory, processService, fileSystem: fileSystem);
         var dependencyList = dependencies.ToList();
 
         // Assert
@@ -89,12 +89,12 @@ public class GoModTests
     {
         // Arrange
         var fileSystem = CreateFileSystem();
-        var goMod = new GoMod();
+        var go = new Go();
         var directory = "go-project";
         var processService = new MockProcessService("");
 
         // Act
-        var dependencies = await goMod.GetDependencies(directory, processService, fileSystem: fileSystem, includeDescriptions: false);
+        var dependencies = await go.GetDependencies(directory, processService, fileSystem: fileSystem, includeDescriptions: false);
         var dependencyList = dependencies.ToList();
 
         // Assert
@@ -107,7 +107,7 @@ public class GoModTests
     {
         // Arrange
         var fileSystem = CreateFileSystem();
-        var goMod = new GoMod();
+        var go = new Go();
         var directory = "go-project";
         var processService = new MockProcessService("");
 
@@ -117,7 +117,7 @@ public class GoModTests
         };
 
         // Act
-        var dependencies = await goMod.GetDependencies(directory, processService, fileSystem: fileSystem, includeDescriptions: true, environment: environment);
+        var dependencies = await go.GetDependencies(directory, processService, fileSystem: fileSystem, includeDescriptions: true, environment: environment);
         var dependencyList = dependencies.ToList();
 
         // Assert
@@ -132,7 +132,7 @@ public class GoModTests
     {
         // Arrange
         var fileSystem = CreateFileSystem();
-        var goMod = new GoMod();
+        var go = new Go();
         var directory = "go-project";
         var processService = new MockProcessService("");
         var dependencies = new List<Dependency>
@@ -146,13 +146,14 @@ public class GoModTests
         };
 
         // Act
-        var samples = await goMod.GetSamples(directory, dependencies, processService, environment: environment, fileSystem: fileSystem);
+        var samples = await go.GetSamples(directory, dependencies, processService, environment: environment, fileSystem: fileSystem);
         var sampleList = samples.ToList();
 
         // Assert
-        Assert.HasCount(2, sampleList);
+        Assert.HasCount(3, sampleList);
         Assert.IsTrue(sampleList.Any(s => s.EndsWith("README.md")));
         Assert.IsTrue(sampleList.Any(s => s.EndsWith("example_test.go")));
+        Assert.IsTrue(sampleList.Any(s => s.EndsWith("example_secrets_test.go")));
     }
 
     [TestMethod]
@@ -160,7 +161,7 @@ public class GoModTests
     {
         // Arrange
         var fileSystem = CreateFileSystem();
-        var goMod = new GoMod();
+        var go = new Go();
         var directory = "go-project";
         var processService = new MockProcessService("");
         var dependencies = new List<Dependency>
@@ -174,7 +175,7 @@ public class GoModTests
         };
 
         // Act
-        var samples = await goMod.GetSamples(directory, dependencies, processService, environment: environment, fileSystem: fileSystem);
+        var samples = await go.GetSamples(directory, dependencies, processService, environment: environment, fileSystem: fileSystem);
         var sampleList = samples.ToList();
 
         // Assert
