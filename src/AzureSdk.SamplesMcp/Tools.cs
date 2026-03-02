@@ -18,11 +18,14 @@ public static class Tools
     private static readonly IDependencyProvider[] s_providers = [
         new Cargo(),
         new Dotnet(),
+        new GoMod(),
+        new Maven(),
+        new Pip(),
         new Node(),
     ];
 
     [McpServerTool(Name = "dependencies")]
-    [Description("Discover Azure SDK dependencies (packages or crates) in your .NET, Node.js, or Rust project. Identifies which Azure services (Key Vault, Storage, CosmosDB, Identity, etc.) your project uses. Supports .csproj, package.json, and Cargo.toml files.")]
+    [Description("Discover Azure SDK dependencies in your project. Identifies which Azure services (Key Vault, Storage, CosmosDB, Identity, etc.) your project uses. Supports .csproj, package.json, Cargo.toml, pom.xml, go.mod, requirements.txt, and pyproject.toml files.")]
     public static async Task<IEnumerable<string>> GetDependencies(
         RequestContext<CallToolRequestParams> context,
         [Description("The path where to start looking for project or manifest files")] string path
