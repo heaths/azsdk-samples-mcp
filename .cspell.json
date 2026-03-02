@@ -12,14 +12,22 @@
   "words": [
     "accessibilities",
     "appconfig",
+    "azappconfig",
+    "azidentity",
     "azsdk",
+    "azsecrets",
     "binlog",
+    "Dexec",
+    "GOMODCACHE",
+    "GOPATH",
     "postbuild",
     "postprovision",
     "pwsh",
+    "pyproject",
     "rethrowing",
     "serde",
-    "tomlyn"
+    "tomlyn",
+    "venv"
   ],
   "overrides": [
     {
