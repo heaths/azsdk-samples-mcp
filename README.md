@@ -5,14 +5,14 @@
 [![release](https://img.shields.io/github/v/release/heaths/azsdk-samples-mcp.svg?logo=github&include_prereleases)](https://github.com/heaths/azsdk-samples-mcp/releases/latest)
 [![ci](https://github.com/heaths/azsdk-samples-mcp/actions/workflows/ci.yml/badge.svg?event=push)](https://github.com/heaths/azsdk-samples-mcp/actions/workflows/ci.yml)
 
-An MCP (Model Context Protocol) server that discovers and retrieves code samples from Azure SDK packages. When working with Azure SDKs, having access to relevant code examples can significantly improve development efficiency and reduce errors. This MCP server automatically discovers Azure SDK samples from your project's dependencies (NuGet, npm, Cargo, Maven, pip, Go modules) and makes them available to AI agents and coding assistants like GitHub Copilot.
+An MCP (Model Context Protocol) server that discovers and retrieves code samples from Azure SDK packages. When working with Azure SDKs, having access to relevant code examples can significantly improve development efficiency and reduce errors. This MCP server automatically discovers Azure SDK samples from your project's dependencies (Cargo, NuGet, pip, Go modules, Maven, npm) and makes them available to AI agents and coding assistants like GitHub Copilot.
 
 **Key features:**
 
-- Discovers Azure SDK samples from multiple package managers (NuGet, npm, Cargo, Maven, pip, Go modules)
+- Discovers Azure SDK samples from multiple package managers (Cargo, NuGet, pip, Go modules, Maven, npm)
 - Lists project dependencies and their available samples
 - Integrates seamlessly with AI agents and coding assistants via the MCP protocol
-- Supports .NET, Node.js, Rust, Java, Python, and Go projects
+- Supports Rust, .NET, Python, Go, Java, and Node.js projects
 
 ## Demo
 
@@ -128,12 +128,12 @@ Once integrated into your IDE:
 
 Example applications demonstrating how to use this MCP server:
 
-- [Download Azure Storage blob in .NET](samples/download-blob/README.md)
-- [List Azure App Configuration values in TypeScript](samples/list-appconfig/README.md)
 - [List Azure Key Vault secrets in Rust](samples/list-secrets/README.md)
-- [List Azure Key Vault secrets in Java](samples/list-secrets-java/README.md)
+- [Download Azure Storage blob in .NET](samples/download-blob/README.md)
 - [List Azure Storage blobs in Python](samples/list-blobs-python/README.md)
 - [List Azure App Configuration values in Go](samples/list-appconfig-go/README.md)
+- [List Azure Key Vault secrets in Java](samples/list-secrets-java/README.md)
+- [List Azure App Configuration values in TypeScript](samples/list-appconfig/README.md)
 
 To provision Azure resources for running these samples, see [infra/README.md](infra/README.md).
 

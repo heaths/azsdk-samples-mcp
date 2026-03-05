@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
+	"github.com/Azure/azure-sdk-for-go/sdk/data/azappconfig"
 )
 
 func main() {
@@ -22,4 +25,12 @@ func main() {
 	// Make sure the sample builds.
 
 	_ = endpoint
+}
+
+func newClient(endpoint string) (*azappconfig.Client, error) {
+	cred, err := azidentity.NewDefaultAzureCredential(nil)
+	if err != nil {
+		return nil, err
+	}
+	return azappconfig.NewClient(endpoint, cred, nil)
 }

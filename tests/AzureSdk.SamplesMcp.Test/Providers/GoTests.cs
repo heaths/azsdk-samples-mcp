@@ -61,9 +61,10 @@ public class GoTests
         var dependencyList = dependencies.ToList();
 
         // Assert
-        Assert.HasCount(1, dependencyList);
-        Assert.AreEqual("github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azsecrets", dependencyList[0].Name);
-        Assert.AreEqual("v1.3.0", dependencyList[0].Version);
+        Assert.HasCount(3, dependencyList);
+        Assert.IsTrue(dependencyList.Any(d => d.Name == "github.com/Azure/azure-sdk-for-go/sdk/azidentity" && d.Version == "v1.8.2"));
+        Assert.IsTrue(dependencyList.Any(d => d.Name == "github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azsecrets" && d.Version == "v1.3.0"));
+        Assert.IsTrue(dependencyList.Any(d => d.Name == "github.com/Azure/azure-sdk-for-go/sdk/azcore" && d.Version == "v1.17.0"));
     }
 
     [TestMethod]
@@ -80,7 +81,7 @@ public class GoTests
         var dependencyList = dependencies.ToList();
 
         // Assert
-        Assert.HasCount(1, dependencyList);
+        Assert.HasCount(3, dependencyList);
         Assert.IsTrue(dependencyList.All(d => d.Name!.StartsWith("github.com/Azure/azure-sdk-for-go/sdk/")));
     }
 
@@ -98,8 +99,8 @@ public class GoTests
         var dependencyList = dependencies.ToList();
 
         // Assert
-        Assert.HasCount(1, dependencyList);
-        Assert.IsNull(dependencyList[0].Description);
+        Assert.HasCount(3, dependencyList);
+        Assert.IsTrue(dependencyList.All(d => d.Description is null));
     }
 
     [TestMethod]
@@ -121,10 +122,19 @@ public class GoTests
         var dependencyList = dependencies.ToList();
 
         // Assert
-        Assert.HasCount(1, dependencyList);
-        Assert.AreEqual("github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azsecrets", dependencyList[0].Name);
-        Assert.AreEqual("v1.3.0", dependencyList[0].Version);
-        Assert.AreEqual("Azure Key Vault Secrets client module for Go.", dependencyList[0].Description);
+        Assert.HasCount(3, dependencyList);
+
+        var azidentity = dependencyList.First(d => d.Name == "github.com/Azure/azure-sdk-for-go/sdk/azidentity");
+        Assert.AreEqual("v1.8.2", azidentity.Version);
+        Assert.AreEqual("Azure Identity provides Microsoft Entra ID token authentication support across the Azure SDK.", azidentity.Description);
+
+        var azsecrets = dependencyList.First(d => d.Name == "github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azsecrets");
+        Assert.AreEqual("v1.3.0", azsecrets.Version);
+        Assert.AreEqual("Azure Key Vault Secrets client module for Go.", azsecrets.Description);
+
+        var azcore = dependencyList.First(d => d.Name == "github.com/Azure/azure-sdk-for-go/sdk/azcore");
+        Assert.AreEqual("v1.17.0", azcore.Version);
+        Assert.AreEqual("Azure Core provides shared primitives, abstractions, and helpers for Azure SDK client modules.", azcore.Description);
     }
 
     [TestMethod]

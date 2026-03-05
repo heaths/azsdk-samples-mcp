@@ -7,12 +7,14 @@
     ".vscode/",
     "infra/",
     "tests/**/Content/",
+    "**/go.sum",
     ".cspell.json"
   ],
   "words": [
     "accessibilities",
     "appconfig",
     "azappconfig",
+    "azcore",
     "azidentity",
     "azsdk",
     "azsecrets",
@@ -20,6 +22,8 @@
     "Dexec",
     "GOMODCACHE",
     "GOPATH",
+    "godebug",
+    "kylelemons",
     "postbuild",
     "postprovision",
     "pwsh",

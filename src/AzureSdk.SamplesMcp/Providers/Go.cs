@@ -151,8 +151,8 @@ internal partial class Go : IDependencyProvider
             // Handle lines inside require block
             if (inRequireBlock)
             {
-                // Skip comments and indirect dependencies
-                if (line.StartsWith("//", StringComparison.Ordinal) || line.Contains("// indirect", StringComparison.Ordinal))
+                // Skip comment-only lines
+                if (line.StartsWith("//", StringComparison.Ordinal))
                     continue;
 
                 var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
