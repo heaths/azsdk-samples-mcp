@@ -7,6 +7,7 @@
     ".vscode/",
     "infra/",
     "tests/**/Content/",
+    "**/go.mod",
     "**/go.sum",
     ".cspell.json"
   ],
@@ -22,8 +23,6 @@
     "Dexec",
     "GOMODCACHE",
     "GOPATH",
-    "godebug",
-    "kylelemons",
     "postbuild",
     "postprovision",
     "pwsh",

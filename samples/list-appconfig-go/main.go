@@ -20,11 +20,17 @@ func main() {
 		os.Exit(1)
 	}
 
+	client, err := newClient(endpoint)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Creating client: %v\n", err)
+		os.Exit(1)
+	}
+
+	_ = client
+
 	// Using configured MCP servers, list values from Azure App Configuration given an endpoint using developer credentials.
 	// The values should be printed alphabetically in the format "{key}: {content_type} = {value}" on each line.
 	// Make sure the sample builds.
-
-	_ = endpoint
 }
 
 func newClient(endpoint string) (*azappconfig.Client, error) {
