@@ -1,7 +1,6 @@
 ---
 name: check-spelling
 description: Check and fix spelling in project source files using cSpell
-compatibility: Requires Node.js with npm version 7.0 or newer.
 ---
 
 # Spell checking
