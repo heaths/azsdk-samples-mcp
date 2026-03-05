@@ -1,7 +1,6 @@
 ---
 name: lint-markdown
 description: Check and fix formatting and other issues in markdown files using markdownlint-cli2
-compatibility: Requires Node.js with npm version 7.0 or newer.
 ---
 
 # Markdown linting
