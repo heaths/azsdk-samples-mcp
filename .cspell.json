@@ -7,19 +7,31 @@
     ".vscode/",
     "infra/",
     "tests/**/Content/",
+    "**/go.mod",
+    "**/go.sum",
     ".cspell.json"
   ],
   "words": [
     "accessibilities",
     "appconfig",
+    "azappconfig",
+    "azcore",
+    "azidentity",
     "azsdk",
+    "azsecrets",
     "binlog",
+    "Dexec",
+    "Entra",
+    "GOMODCACHE",
+    "GOPATH",
     "postbuild",
     "postprovision",
     "pwsh",
+    "pyproject",
     "rethrowing",
     "serde",
-    "tomlyn"
+    "tomlyn",
+    "venv"
   ],
   "overrides": [
     {
