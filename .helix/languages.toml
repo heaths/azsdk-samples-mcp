@@ -1,0 +1,22 @@
+[[language]]
+name = "c-sharp"
+auto-format = true
+indent = { tab-width = 4, unit = "    " }
+
+[[language]]
+name = "json"
+auto-format = true
+indent = { tab-width = 2, unit = "  " }
+
+[language-server.vscode-json-language-server.config.json]
+insertFinalNewline = true
+
+[[language]]
+name = "toml"
+auto-format = true
+indent = { tab-width = 2, unit = "  " }
+
+[[language]]
+name = "yaml"
+auto-format = true
+indent = { tab-width = 2, unit = "  " }
