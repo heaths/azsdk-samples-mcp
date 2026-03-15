@@ -30,6 +30,22 @@ copilot plugin install heaths/azsdk-samples-mcp
 
 This installs the MCP server and makes it available in all Copilot CLI sessions.
 
+### Install as a Claude Code Plugin
+
+First, install the MCP server as a global .NET tool:
+
+```bash
+dotnet tool install --global AzureSdk.SamplesMcp --prerelease
+```
+
+Then install the plugin using [Claude Code](https://code.claude.com/docs/en/plugins):
+
+```bash
+claude plugin install heaths/azsdk-samples-mcp
+```
+
+This installs the MCP server and makes it available in all Claude Code sessions.
+
 ### Install as a Global Tool
 
 Alternatively, install the MCP server as a global .NET tool from nuget.org:
