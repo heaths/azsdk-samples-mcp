@@ -13,7 +13,8 @@
   "mcpServers": {
     "azsdk-samples": {
       "type": "stdio",
-      "command": "azsdk-samples"
+      "command": "azsdk-samples",
+      "tools": ["*"]
     }
   }
 }

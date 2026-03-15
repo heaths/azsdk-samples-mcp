@@ -20,17 +20,7 @@ An MCP (Model Context Protocol) server that discovers and retrieves code samples
 
 ## Installation
 
-### Install as a Copilot CLI Plugin
-
-Install the plugin using [GitHub Copilot CLI](https://docs.github.com/copilot/how-tos/copilot-cli/customize-copilot/plugins-finding-installing):
-
-```bash
-copilot plugin install heaths/azsdk-samples-mcp
-```
-
-This installs the MCP server and makes it available in all Copilot CLI sessions.
-
-### Install as a Claude Code Plugin
+### Install as a Copilot CLI or Claude Code Plugin
 
 First, install the MCP server as a global .NET tool:
 
@@ -38,13 +28,19 @@ First, install the MCP server as a global .NET tool:
 dotnet tool install --global AzureSdk.SamplesMcp --prerelease
 ```
 
-Then install the plugin using [Claude Code](https://code.claude.com/docs/en/plugins):
+Then install the plugin using [GitHub Copilot CLI](https://docs.github.com/copilot/how-tos/copilot-cli/customize-copilot/plugins-finding-installing):
+
+```bash
+copilot plugin install heaths/azsdk-samples-mcp
+```
+
+Or using [Claude Code](https://code.claude.com/docs/en/plugins):
 
 ```bash
 claude plugin install heaths/azsdk-samples-mcp
 ```
 
-This installs the MCP server and makes it available in all Claude Code sessions.
+This installs the MCP server and makes it available in all sessions.
 
 ### Install as a Global Tool
 
@@ -77,7 +73,7 @@ dotnet build
 
 ## Configuration
 
-> **Note:** If you installed the [Copilot CLI plugin](#install-as-a-copilot-cli-plugin), no additional configuration is needed.
+> **Note:** If you installed the [Copilot CLI or Claude Code plugin](#install-as-a-copilot-cli-or-claude-code-plugin), no additional configuration is needed.
 
 ### Automatic Configuration
 
