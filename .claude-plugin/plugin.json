@@ -1,7 +1,7 @@
 {
   "name": "azsdk-samples-mcp",
   "description": "Discovers and retrieves code samples from Azure SDK packages in Rust, .NET, Python, Go, Java, and Node.js projects.",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "author": {
     "name": "Heath Stewart",
     "url": "https://github.com/heaths"
