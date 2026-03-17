@@ -42,10 +42,14 @@ jobs:
           # Update .csproj file
           sed -i "s/<Version>$VERSION<\/Version>/<Version>$NEW_VERSION<\/Version>/" src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj
 
-          # Update plugin version and NuGet package reference
-          PLUGIN_VERSION_FILE=".github/plugin/plugin.json"
-          sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$BASE_VERSION\"/" "$PLUGIN_VERSION_FILE"
-          sed -i "s/AzureSdk\.SamplesMcp@[^\"]*/AzureSdk.SamplesMcp@$VERSION/" "$PLUGIN_VERSION_FILE"
+          # Update Copilot CLI plugin version and NuGet package reference
+          COPILOT_PLUGIN=".github/plugin/plugin.json"
+          sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$BASE_VERSION\"/" "$COPILOT_PLUGIN"
+          sed -i "s/AzureSdk\.SamplesMcp@[^\"]*/AzureSdk.SamplesMcp@$VERSION/" "$COPILOT_PLUGIN"
+
+          # Update Claude Code plugin version
+          CLAUDE_PLUGIN=".claude-plugin/plugin.json"
+          sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$BASE_VERSION\"/" "$CLAUDE_PLUGIN"
 
           # Create PR with context based on trigger
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
@@ -80,7 +84,7 @@ jobs:
           fi
 
           git checkout -b "$BRANCH_NAME"
-          git add src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj .github/plugin/plugin.json
+          git add src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj .github/plugin/plugin.json .claude-plugin/plugin.json
           git commit -m "Bump version to $NEW_VERSION"
           git push origin "$BRANCH_NAME"
           
