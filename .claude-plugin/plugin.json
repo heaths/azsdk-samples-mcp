@@ -13,12 +13,15 @@
   "mcpServers": {
     "azsdk-samples": {
       "type": "stdio",
-      "command": "dnx",
+      "command": "dotnet",
       "args": [
-        "AzureSdk.SamplesMcp@0.4.0-preview.1",
-        "--yes"
-      ],
-      "tools": ["*"]
+        "run",
+        "--project",
+        "${CLAUDE_PLUGIN_ROOT}/src/AzureSdk.SamplesMcp/AzureSdk.SamplesMcp.csproj",
+        "--configuration",
+        "Release",
+        "--"
+      ]
     }
   }
 }
