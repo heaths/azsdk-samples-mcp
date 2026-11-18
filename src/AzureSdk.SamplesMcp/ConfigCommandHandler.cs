@@ -77,9 +77,7 @@ internal static class ConfigCommandHandler
 
             return target switch
             {
-                "copilot" => Path.Combine(repoRoot, ".copilot", "mcp-config.json"),
-                "claude" => Path.Combine(repoRoot, ".mcp.json"),
-                "vscode" => Path.Combine(repoRoot, ".vscode", "mcp.json"),
+                "copilot" or "claude" or "vscode" => Path.Combine(repoRoot, ".mcp.json"),
                 _ => null
             };
         }
@@ -199,15 +197,7 @@ internal static class ConfigCommandHandler
         // Build server configuration
         JsonObject serverConfig = BuildServerConfig(target, command, args);
 
-        // Add to appropriate section based on target
-        if (target == "vscode")
-        {
-            AddVsCodeConfig(rootConfig, serverConfig);
-        }
-        else
-        {
-            AddMcpServerConfig(rootConfig, serverConfig);
-        }
+        AddMcpServerConfig(rootConfig, serverConfig);
 
         // Write config file
         JsonSerializerOptions options = new()
@@ -232,8 +222,8 @@ internal static class ConfigCommandHandler
             serverConfig["args"] = args;
         }
 
-        // Add tools for Copilot
-        if (target == "copilot")
+        // Add tools for the Copilot harness
+        if (target is "copilot" or "vscode")
         {
             serverConfig["tools"] = new JsonArray { "*" };
         }
@@ -241,27 +231,8 @@ internal static class ConfigCommandHandler
         return serverConfig;
     }
 
-    private static void AddVsCodeConfig(JsonObject rootConfig, JsonObject serverConfig)
-    {
-        // VS Code uses "servers" not "mcpServers"
-        if (!rootConfig.ContainsKey("servers"))
-        {
-            rootConfig["servers"] = new JsonObject();
-        }
-
-        // Ensure inputs array exists
-        if (!rootConfig.ContainsKey("inputs"))
-        {
-            rootConfig["inputs"] = new JsonArray();
-        }
-
-        JsonObject servers = rootConfig["servers"]!.AsObject();
-        servers[ServerName] = serverConfig;
-    }
-
     private static void AddMcpServerConfig(JsonObject rootConfig, JsonObject serverConfig)
     {
-        // Copilot and Claude use "mcpServers"
         if (!rootConfig.ContainsKey("mcpServers"))
         {
             rootConfig["mcpServers"] = new JsonObject();

@@ -19,6 +19,7 @@
       "mcp": {
         "servers": {
           "azsdk-samples": {
+            "displayName": "Azure SDK Samples",
             "type": "stdio",
             "command": "dotnet",
             "args": [

@@ -86,8 +86,8 @@ azsdk-samples config claude --global
 
 This will create or update the appropriate configuration files:
 
-- **Copilot**: `.copilot/mcp-config.json` (local) or `~/.copilot/mcp-config.json` (global)
-- **VS Code**: `.vscode/mcp.json` (local only)
+- **Copilot**: `.mcp.json` (local) or `~/.copilot/mcp-config.json` (global)
+- **VS Code**: `.mcp.json` (local only)
 - **Claude Code**: `.mcp.json` (local) or `~/.claude.json` (global)
 
 > **Note:** For global configurations, the command assumes you have the tool installed globally. For local configurations, it will find your repository root (by looking for `.git`) and create the config there.
@@ -102,17 +102,16 @@ For more control or troubleshooting, you can manually configure the MCP server:
 
 #### Example: Manual VS Code Configuration
 
-Create or edit `.vscode/mcp.json` in your repository:
+Create or edit `.mcp.json` in your repository:
 
 ```json
 {
-  "servers": {
+  "mcpServers": {
     "azsdk-samples": {
       "type": "stdio",
       "command": "azsdk-samples"
     }
-  },
-  "inputs": []
+  }
 }
 ```
 
