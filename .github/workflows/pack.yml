@@ -14,9 +14,9 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Setup
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
       - name: Restore
@@ -36,7 +36,7 @@ jobs:
           -p:IntermediateOutputPath="${{ steps.outputs.outputs.artifact_dir }}/obj/"
           -p:ContinuousIntegrationBuild=true
       - name: Upload binaries
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: build-binaries
           path: ${{ steps.outputs.outputs.artifact_dir }}/AzureSdk.SamplesMcp.dll
@@ -53,7 +53,7 @@ jobs:
           -p:NoWarn=NU5104
           -p:ContinuousIntegrationBuild=true
       - name: Upload NuGet package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nuget-package
           path: "${{ steps.outputs.outputs.artifact_dir }}/*.nupkg"
