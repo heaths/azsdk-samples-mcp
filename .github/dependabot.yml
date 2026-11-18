@@ -1,6 +1,6 @@
 version: 2
 updates:
-  - package-ecosystem: dotnet-sdk
+  - package-ecosystem: nuget
     directories:
       - /src/*
       - /tests/*
@@ -40,5 +40,49 @@ updates:
         patterns:
           - "@azure/*"
       all-other-npm:
+        patterns:
+          - "*"
+  - package-ecosystem: gomod
+    directories:
+      - /samples/*
+    schedule:
+      interval: weekly
+    groups:
+      azure-sdk:
+        patterns:
+          - "github.com/Azure/azure-sdk-for-go/*"
+      all-other-go:
+        patterns:
+          - "*"
+  - package-ecosystem: maven
+    directories:
+      - /samples/*
+    schedule:
+      interval: weekly
+    groups:
+      azure-sdk:
+        patterns:
+          - "com.azure:*"
+      all-other-maven:
+        patterns:
+          - "*"
+  - package-ecosystem: pip
+    directories:
+      - /samples/*
+    schedule:
+      interval: weekly
+    groups:
+      azure-sdk:
+        patterns:
+          - "azure-*"
+      all-other-pip:
+        patterns:
+          - "*"
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
         patterns:
           - "*"
