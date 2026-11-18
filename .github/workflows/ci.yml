@@ -22,9 +22,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Setup
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
       - name: Restore
@@ -37,9 +37,9 @@ jobs:
   analyze:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Setup
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
       - name: Restore
@@ -47,12 +47,12 @@ jobs:
       - name: Check formatting
         run: dotnet format --severity warn --verify-no-changes
       - name: Check spelling
-        uses: streetsidesoftware/cspell-action@v6
+        uses: streetsidesoftware/cspell-action@v9
         with:
           config: .cspell.json
       - name: Lint markdown
         # cspell:words Anson
-        uses: DavidAnson/markdownlint-cli2-action@v22
+        uses: DavidAnson/markdownlint-cli2-action@v25
         with:
           config: .markdownlint-cli2.yaml
           fix: false
