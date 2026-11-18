@@ -22,6 +22,7 @@
     "binlog",
     "Dexec",
     "Entra",
+    "gomod",
     "GOMODCACHE",
     "GOPATH",
     "postbuild",
